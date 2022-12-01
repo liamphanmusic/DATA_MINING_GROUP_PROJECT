@@ -16,6 +16,8 @@ rm(list = ls())
 
 library(data.table)
 library(summarytools)
+library(dplyr)
+library(ggplot2)
 
 ```
 
@@ -32,7 +34,6 @@ print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE,
 # select numeric variables
 df_is.numeric <- df %>% 
   select_if(is.numeric)
-df_is.numeric <- select(df_is.numeric, -c(shelf))
 
 df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
 df_heatmap <- melt(df_heatmap)
