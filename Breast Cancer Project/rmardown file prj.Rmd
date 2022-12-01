@@ -21,6 +21,47 @@ library(ggplot2)
 
 ```
 
+# Data Analysis
+
+## Structure of Data
+
+## Missing values
+
+## Distribution of Data
+
+## Correlation
+
+# Data Preparation
+
+## Transformation
+
+## Standardization
+
+## Partitioning 
+
+# Supervised Learning
+
+## Logistic Regression
+
+## Classification Tree
+
+## K-Nearest Neighbor
+
+## Neural Networks
+
+## Discriminant Analysis
+
+## Ensemble Methods
+
+## Comparision of Models
+
+# Unsupervised Learning
+
+## Cluster Analysis
+
+# Conclusion
+
+
 ```{r Data reading}
 
 df <- fread("data/Breast_Cancer/breast-cancer.csv")
