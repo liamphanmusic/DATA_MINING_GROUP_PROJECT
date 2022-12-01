@@ -19,7 +19,7 @@ library(dplyr)
 library(ggplot2)
 library(data.table) # fread
 library(rbokeh) # visualization of data
-library(summarytools) # dfSummary
+library(summarytools) # ORIGINALSummary
 library(adabag) # bagging and boosting
 library(caret) # pre-processing
 library(dplyr) # select, mutate_if
@@ -90,10 +90,10 @@ draw_confusion_matrix <- function(cm) {
 ## Structure of Data
 
 ```{r Data reading}
-df <- fread("data/Breast_Cancer/breast-cancer.csv")
+ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
 
 # printing sumamry
-print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
 ```
 
 ## Missing values
@@ -104,14 +104,14 @@ print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE,
 
 ```{r corrplot}
 # select numeric variables
-df_is.numeric <- df %>% 
+ORIGINAL_is.numeric <- ORIGINAL %>% 
   select_if(is.numeric)
 
-df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
-df_heatmap <- melt(df_heatmap)
+ORIGINAL_heatmap <- round(cor(ORIGINAL_is.numeric, use = "complete.obs"), 1)
+ORIGINAL_heatmap <- melt(ORIGINAL_heatmap)
 
 #  corrplot
-ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
+ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
   geom_tile()+
   scale_fill_gradient(low = "pink", high = "dark red")+
   labs(title="Correlation Heatmap",x="", y="")+
@@ -125,13 +125,30 @@ ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 
 ## Standardization
 
-df
-df center scale
-df range
+ORIGINAL
+ORIGINAL center scale
+ORIGINAL range
 
 ## Partitioning 
+```{r}
 
-training 50, val 30, test 20
+sampling <- sample(row.names(ORIGINAL), 0.5*dim(ORIGINAL)) #  TRAINING set 50% of the data
+sampling_2 <- sample(setdiff(row.names(ORIGINAL), sampling ),  0.3*dim(ORIGINAL)) # VALIDATION set 30%
+sampling_3 <- setdiff(rownames(ORIGINAL), union(sampling, sampling_2)) #TEST set 20%
+# we build all these sets as mutually exclusive
+
+train.ORIGINAL <- ORIGINAL[sampling ,] # TRAINING set as individual data.frame
+VALID <- ORIGINAL[sampling_2,] # VALIDATION set as individual data.frame
+TEST.e.ORIGINAL <- ORIGINAL[sampling_3,] # TEST set as individual data.frame
+
+train.estand.ORIGINAL <- train.ORIGINAL # initializing variables, for TRAINING set
+valid.estand.ORIGINAL <-valid.ORIGINAL  # for VALIDATION set
+TEST.estand.ORIGINAL <- TEST.ORIGINAL   # for TEST set
+
+```
+
+
+TRAINING 50, val 30, TEST 20
 
 # Supervised Learning
 
@@ -169,28 +186,27 @@ training 50, val 30, test 20
 
 # Conclusion
 
-<<<<<<< Updated upstream
-=======
+
 
 ```{r Data reading}
 
-df <- fread("data/Breast_Cancer/breast-cancer.csv")
+ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
 
 # printing sumamry
-print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+print(ORIGINALSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
 
 ```
 
 ```{r corrplot, fig.width=19,fig.height=19}
 # select numeric variables
-df_is.numeric <- df %>% 
+ORIGINAL_is.numeric <- ORIGINAL %>% 
   select_if(is.numeric)
 
-df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
-df_heatmap <- melt(df_heatmap)
+ORIGINAL_heatmap <- round(cor(ORIGINAL_is.numeric, use = "complete.obs"), 1)
+ORIGINAL_heatmap <- melt(ORIGINAL_heatmap)
 
 #  corrplot
-ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
+ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
   geom_tile()+
   scale_fill_gradient(low = "pink", high = "dark red")+
   labs(title="Correlation Heatmap",x="", y="")+
@@ -199,4 +215,3 @@ ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 ```
 
 
->>>>>>> Stashed changes
