@@ -12,8 +12,19 @@ rm(list = ls())
 
 ```{r}
 library(data.table)
+library(naniar)
+
 ```
+
+
+
 ```{r}
 fread("data/Breast_Cancer/breast-cancer.csv")
+
+```
+
+### Data Exploration:
+```{r}
+
 ```
 
