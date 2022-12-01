@@ -11,12 +11,77 @@ knitr::opts_chunk$set(echo = TRUE,
 rm(list = ls())
 ```
 
-```{r Libraries}
+```{r Libraries and functions}
 
 library(data.table)
 library(summarytools)
 library(dplyr)
 library(ggplot2)
+library(data.table) # fread
+library(rbokeh) # visualization of data
+library(summarytools) # dfSummary
+library(adabag) # bagging and boosting
+library(caret) # pre-processing
+library(dplyr) # select, mutate_if
+library(fastDummies) # dummy_cols
+library(splitTools) # data partition
+library(rpart) # classification tree
+library(rpart.plot) # plot regression trees
+library(DT) # datatable
+library(corrplot) # corrplot
+library(gains) # gain
+library(randomForest) # randomForest
+library(cluster) # hierarchical clustering
+library(knitr) # kable
+library(kableExtra) # kbl
+library(ggplot2) # ggplot
+
+# Confusion matrix
+draw_confusion_matrix <- function(cm) {
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#3F97D0')
+  text(195, 435, 'No', cex=1.2)
+  rect(250, 430, 340, 370, col='#F7AD50')
+  text(295, 435, 'Yes', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#F7AD50')
+  rect(250, 305, 340, 365, col='#3F97D0')
+  text(140, 400, 'No', cex=1.2, srt=90)
+  text(140, 335, 'Yes', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(5, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(5, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(23, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(23, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(41, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(41, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(59, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(59, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(77, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(77, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+  text(95, 85, names(cm$byClass[8]), cex=1.2, font=2)
+  text(95, 70, round(as.numeric(cm$byClass[8]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  te
 
 ```
 
@@ -33,8 +98,6 @@ library(ggplot2)
 # Data Preparation
 
 ## Transformation
-
-df.logsitic <- 
 
 ## Standardization
 
