@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE,
 rm(list = ls())
 ```
 
-```{r Libraries and functions}
+```{r Libraries and functions, message=FALSE, warning= FALSE}
 
 library(data.table)
 library(summarytools)
@@ -41,7 +41,7 @@ draw_confusion_matrix <- function(cm) {
   layout(matrix(c(1,1,2)))
   par(mar=c(2,2,2,2))
   plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
-  title('CONFUSION MATRIX', cex.main=2)
+  title('CONFUSION MATRIX', cex.main=2)}
 
   # create the matrix 
   rect(150, 430, 240, 370, col='#3F97D0')
@@ -169,3 +169,34 @@ training 50, val 30, test 20
 
 # Conclusion
 
+<<<<<<< Updated upstream
+=======
+
+```{r Data reading}
+
+df <- fread("data/Breast_Cancer/breast-cancer.csv")
+
+# printing sumamry
+print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+
+```
+
+```{r corrplot, fig.width=19,fig.height=19}
+# select numeric variables
+df_is.numeric <- df %>% 
+  select_if(is.numeric)
+
+df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
+df_heatmap <- melt(df_heatmap)
+
+#  corrplot
+ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile()+
+  scale_fill_gradient(low = "pink", high = "dark red")+
+  labs(title="Correlation Heatmap",x="", y="")+
+  geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 10), plot.title = element_text(hjust=0.5, size=10))
+```
+
+
+>>>>>>> Stashed changes
