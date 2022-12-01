@@ -5,11 +5,10 @@ date: "2022-12-01"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, set.seed(1)}
+knitr::opts_chunk$set(echo = TRUE,
+                      cache = TRUE)
 rm(list = ls())
-
 ```
 
 ```{r Libraries}
@@ -35,13 +34,25 @@ library(ggplot2)
 
 ## Transformation
 
+df.logsitic <- 
+
 ## Standardization
 
+df
+df center scale
+df range
+
 ## Partitioning 
+
+training 50, val 30, test 20
 
 # Supervised Learning
 
 ## Logistic Regression
+
+### big
+
+### stepwise front / back / both / exhaustive search 
 
 ## Classification Tree
 
@@ -52,6 +63,16 @@ library(ggplot2)
 ## Discriminant Analysis
 
 ## Ensemble Methods
+
+### bagging
+
+### boosting
+
+### rf
+
+### majority vote -> combined
+
+### average of models -> combined
 
 ## Comparision of Models
 
