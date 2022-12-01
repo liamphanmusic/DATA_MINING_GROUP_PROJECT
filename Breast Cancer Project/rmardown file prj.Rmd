@@ -6,19 +6,25 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
+
 ```
 
 ```{r Libraries}
+
 library(data.table)
 library(summarytools)
+
 ```
 
 ```{r Data reading}
+
 df <- fread("data/Breast_Cancer/breast-cancer.csv")
 
 # printing sumamry
 print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+
 ```
 
