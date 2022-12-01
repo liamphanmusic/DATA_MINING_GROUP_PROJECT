@@ -89,11 +89,35 @@ draw_confusion_matrix <- function(cm) {
 
 ## Structure of Data
 
+```{r Data reading}
+df <- fread("data/Breast_Cancer/breast-cancer.csv")
+
+# printing sumamry
+print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+```
+
 ## Missing values
 
 ## Distribution of Data
 
 ## Correlation
+
+```{r corrplot}
+# select numeric variables
+df_is.numeric <- df %>% 
+  select_if(is.numeric)
+
+df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
+df_heatmap <- melt(df_heatmap)
+
+#  corrplot
+ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
+  geom_tile()+
+  scale_fill_gradient(low = "pink", high = "dark red")+
+  labs(title="Correlation Heatmap",x="", y="")+
+  geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(hjust=0.5))
+```
 
 # Data Preparation
 
@@ -144,31 +168,4 @@ training 50, val 30, test 20
 ## Cluster Analysis
 
 # Conclusion
-
-
-```{r Data reading}
-
-df <- fread("data/Breast_Cancer/breast-cancer.csv")
-
-# printing sumamry
-print(dfSummary(df, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
-
-```
-
-```{r corrplot}
-# select numeric variables
-df_is.numeric <- df %>% 
-  select_if(is.numeric)
-
-df_heatmap <- round(cor(df_is.numeric, use = "complete.obs"), 1)
-df_heatmap <- melt(df_heatmap)
-
-#  corrplot
-ggplot(df_heatmap, aes(x=Var1, y=Var2, fill=value)) +
-  geom_tile()+
-  scale_fill_gradient(low = "pink", high = "dark red")+
-  labs(title="Correlation Heatmap",x="", y="")+
-  geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(hjust=0.5))
-```
 
