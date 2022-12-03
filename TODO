@@ -6,7 +6,17 @@ Michael Bigler
 - KNN
 * 
 - Discriminant Analysis
-* 
+* Smallest class sufficiently large (20 records)
+* Sensitive to outliers -> EA flag outliers and maybe remove them
+* correlation structure between different predictors within class is the same as accross classes (Correlation matrix for each class and compare)
+* if correlations differ substantially -> classifier will tend to classify records into class with larger variability
+* when big difference and data set large -> quadratic discriminant analysis
+* fit model -> see if it works -> revisit outliers and choice of predictors
+* In case of unequal classes -> add log(probability) to function -> 12.5
+* Misclassifiaction costs -> add log(cost1) and log(cost2) to function -> 12.6 (also in combinatio with before)
+* normality is assumed -> log transform might help
+* outliers have huge impact -> needs deletion of them and in depth outlier analysis
+
 
 Liam Phan
 
