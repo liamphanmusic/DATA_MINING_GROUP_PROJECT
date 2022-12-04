@@ -35,7 +35,7 @@ library(cluster) # hierarchical clustering
 library(knitr) # kable
 library(kableExtra) # kbl
 library(ggplot2) # ggplot
-
+library(MASS) # lda, qda, etc.
 ```
 
 ```{r}
@@ -135,6 +135,8 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 
 # Data Preparation
 
+## General 
+
 ## Transformation
 ```{r}
 
@@ -185,26 +187,66 @@ TRAINING 50, val 30, TEST 20
 
 ## Discriminant Analysis
 
-For discriminant analysis data preparation is really important as outliers can have a huge influence on to the model. 
+First I just run a discriminant analysis.
+
+First data prep before model -> center / scale, 
+
+```{r DA data prep}
+ORIGINAL$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
+ORIGINAL.DA <- select(ORIGINAL, -c(id))
+norm.value <- preProcess(ORIGINAL.DA, method = c("center", "scale"))
+ORIGINAL.DA <- predict(norm.value, ORIGINAL.DA)
+inds <- partition(ORIGINAL.DA$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
+ORIGINAL.DA.train <- ORIGINAL.DA[inds$train]
+ORIGINAL.DA.valid <- ORIGINAL.DA[inds$valid]
+ORIGINAL.DA.test <- ORIGINAL.DA[inds$test]
+```
+
+try with lda
+
+```{r first DA}
+# Fit the model
+DA1 <- lda(diagnosis~., data = ORIGINAL.DA.train)
+
+# Make predictions
+predictions <- predict(DA1, ORIGINAL.DA.valid)
+
+# correlation matrix
+confus
+```
+
+If bad -> Correlation in data -> qda continuing with it. If not continue with lda
+
+We see different proportions -> need to refit model with cost to proportion
+
+2nd model
+
+we know missclassification bad -> cost for misclassification model
+
+3rd model
+
+We see that outliers make it bad -> remove some rows
+
+4th model
+
+Some predictors unimportant -> remove some
+
+5th model
 
 ```{r data prep for DA}
 # remove outliers
 # use a different filter than boxplot?
 # https://statsandr.com/blog/outliers-detection-in-r/
-ORIGINAL.DA <- ORIGINAL %>% select(where(is.numeric))
+
 ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 
-out_ind <- list()
-i = 0
-for (column in ORIGIANL.DA){ 
-  i = i + 1
-  out <- boxplot.stats(column)$out
-  out_ind[i] <- which(column %in% c(out))
 }
 
 # normality -> log transform
 
 # correlation between groups
+```
+
 ```
 
 ```{r base model}
