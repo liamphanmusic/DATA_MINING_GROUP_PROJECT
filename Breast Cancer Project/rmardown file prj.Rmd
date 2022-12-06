@@ -187,6 +187,72 @@ TRAINING 50, val 30, TEST 20
 
 ## K-Nearest Neighbor
 
+```{r data prep knn}
+ORIGINAL.KNN <- dplyr::select(ORIGINAL, -c("id"))
+ORIGINAL.KNN$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
+
+# partition
+inds <- partition(ORIGINAL.KNN$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
+ORIGINAL.KNN.train <- ORIGINAL.KNN[inds$train]
+ORIGINAL.KNN.valid <- ORIGINAL.KNN[inds$valid]
+ORIGINAL.KNN.test <- ORIGINAL.KNN[inds$test]
+
+# standardize
+norm.value <- preProcess(ORIGINAL.KNN.train, method = c("center", "scale"))
+ORIGINAL.KNN.train <- predict(norm.value, ORIGINAL.KNN.train)
+ORIGINAL.KNN.valid <- predict(norm.value, ORIGINAL.KNN.valid)
+ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
+```
+
+best k 
+
+```{r knn best k}
+accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
+
+# iterating over different k's
+for(i in 1:30){
+  # nearest neighbor
+  KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = i)
+
+  # predictions response 
+  KNN1.pred.valid.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "class")
+  
+  # predictions prob 
+  KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "prob")[,2]
+  
+  # Confusionmatrix
+  accuracy.df[i, 2] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$overall[1]
+}
+
+# table in markdown
+datatable(accuracy.df)
+
+# plot the k's 
+ggplot(accuracy.df) +
+ aes(x = k, y = accuracy) +
+ geom_line(size = 0.7, colour = "#112646") +
+ labs(x = "Number of k nearest neighbours", 
+ y = "Accuracy", title = "Accuracy regarding k") +
+ theme_minimal()
+```
+
+calculate best knn
+
+```{r best knn}
+# nearest neighbor
+KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 3)
+
+# predictions response 
+KNN1.pred.valid.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "class")
+
+# predictions prob 
+KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "prob")[,2]
+
+# Confusionmatrix
+KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
+draw_confusion_matrix(KNN1.conf.mat)
+```
+
 ## Neural Networks
 
 ## Discriminant Analysis
@@ -198,12 +264,18 @@ First data prep before model -> center / scale,
 ```{r DA data prep}
 ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
 ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
-norm.value <- preProcess(ORIGINAL.DA, method = c("center", "scale"))
-ORIGINAL.DA <- predict(norm.value, ORIGINAL.DA)
+
+# partition
 inds <- partition(ORIGINAL.DA$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
 ORIGINAL.DA.train <- ORIGINAL.DA[inds$train]
 ORIGINAL.DA.valid <- ORIGINAL.DA[inds$valid]
 ORIGINAL.DA.test <- ORIGINAL.DA[inds$test]
+
+# standardize
+norm.value <- preProcess(ORIGINAL.DA.train, method = c("center", "scale"))
+ORIGINAL.DA.train <- predict(norm.value, ORIGINAL.DA.train)
+ORIGINAL.DA.valid <- predict(norm.value, ORIGINAL.DA.valid)
+ORIGINAL.DA.test <- predict(norm.value, ORIGINAL.DA.test)
 ```
 
 try with lda
