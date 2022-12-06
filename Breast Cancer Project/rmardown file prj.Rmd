@@ -36,6 +36,8 @@ library(kableExtra) # kbl
 library(ggplot2) # ggplot
 library(MASS) # lda, qda, etc.
 library(dplyr)
+library(klaR) # partimat
+
 
 ```
 
@@ -194,8 +196,8 @@ First I just run a discriminant analysis.
 First data prep before model -> center / scale, 
 
 ```{r DA data prep}
-ORIGINAL$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
 ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
+ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
 norm.value <- preProcess(ORIGINAL.DA, method = c("center", "scale"))
 ORIGINAL.DA <- predict(norm.value, ORIGINAL.DA)
 inds <- partition(ORIGINAL.DA$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
@@ -220,8 +222,8 @@ DA1.pred.valid.prob <- predictions$posterior[,2]
 DA1.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
-ct.conf.mat <- confusionMatrix(DA1.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(ct.conf.mat)
+DA1.conf.mat <- confusionMatrix(DA1.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA1.conf.mat)
 
 # Lift chart
 actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
@@ -230,13 +232,65 @@ DA1.gain <- gains(actual, prob)
 barplot(DA1.gain$mean.resp / mean(actual), names.arg = DA1.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
 
+# Evaluating LDA
+# doesn't work
+# klaR::partimat(diagnosis~., data = ORIGINAL.DA.train, method="lda", plot.matrix = FALSE)
 ```
 
 If bad -> Correlation in data -> qda continuing with it. If not continue with lda
 
+```{r qda}
+# Fit the model
+DA2 <- qda(diagnosis~., data = ORIGINAL.DA.train)
+
+# Make predictions
+predictions <- predict(DA2, ORIGINAL.DA.valid)
+
+# predictions prob
+DA2.pred.valid.prob <- predictions$posterior[,2]
+
+# predictions response 
+DA2.pred.valid.resp <- factor(predictions$class)
+
+# confusion matrix
+DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA2.conf.mat)
+
+# Lift chart
+actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
+prob <- as.numeric(DA2.pred.valid.prob)
+DA2.gain <- gains(actual, prob)
+barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
+ylab = "Mean Response", main = "Decile-wise lift chart")
+```
+Doesn't get better... lets continue with lda
+
 We see different proportions -> need to refit model with cost to proportion
 
-2nd model
+```{r lda different proportions}
+# Fit the model
+DA3 <- lda(diagnosis~., data = ORIGINAL.DA.train)
+
+# Make predictions
+predictions <- predict(DA2, ORIGINAL.DA.valid)
+
+# predictions prob
+DA2.pred.valid.prob <- predictions$posterior[,2]
+
+# predictions response 
+DA2.pred.valid.resp <- factor(predictions$class)
+
+# confusion matrix
+DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA2.conf.mat)
+
+# Lift chart
+actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
+prob <- as.numeric(DA2.pred.valid.prob)
+DA2.gain <- gains(actual, prob)
+barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
+ylab = "Mean Response", main = "Decile-wise lift chart")
+```
 
 we know missclassification bad -> cost for misclassification model
 
