@@ -153,10 +153,14 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 
 ## Transformation
 
-```{r}
+```{r Transform Outcome Variable to Binary Factor Variable}
 
-ORIGINAL[diagnosis == "M", c("diagnosis")] <- 1
-ORIGINAL[diagnosis == "B", c("diagnosis")] <- 0
+# Transform Character Format to Binary Numerical Values on Outcome Variable "Diagnosis"
+
+ORIGINAL[diagnosis == "M", c("diagnosis")] <- 1  # 1 for Malign Outcome
+ORIGINAL[diagnosis == "B", c("diagnosis")] <- 0  # 0 for Benign Outcome 
+
+ORIGINAL$diagnosis <- as.factor(ORIGINAL$diagnosis) # To Factor Variable 
 
 ```
 
@@ -192,6 +196,36 @@ TRAINING 50, val 30, TEST 20
 
 ## Logistic Regression
 
+Assumptions for Logistic Regression: 
+
+  1. The dependent variable must be categorical in nature.
+  2. The independent variable should not have multi-collinearity.
+  
+Type of Logistic Regression: 
+
+  1. **Binomial** (we will use this type since we only have binary outcomes, malign or benign)
+  2. Multinational 
+  3. Ordinal 
+
+### Fit the Logistic Regression Model 
+
+```{r Fit Logistic Regression}
+
+str(Training)
+
+#fit logistic regression model
+Logistic_Model_1 <- glm(diagnosis ~ ., family="binomial", data = Training)
+
+#disable scientific notation for model summary
+options(scipen=999)
+
+#view model summary
+summary(Logistic_Model_1)
+
+
+
+```
+
 
 
 ### big
@@ -203,6 +237,7 @@ TRAINING 50, val 30, TEST 20
 ## K-Nearest Neighbor
 
 ```{r data prep knn}
+
 ORIGINAL.KNN <- dplyr::select(ORIGINAL, -c("id"))
 ORIGINAL.KNN$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
 
@@ -217,6 +252,7 @@ norm.value <- preProcess(ORIGINAL.KNN.train, method = c("center", "scale"))
 ORIGINAL.KNN.train <- predict(norm.value, ORIGINAL.KNN.train)
 ORIGINAL.KNN.valid <- predict(norm.value, ORIGINAL.KNN.valid)
 ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
+
 ```
 
 best k 
@@ -467,4 +503,10 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 10), plot.title = element_text(hjust=0.5, size=10))
 ```
 
+
+
+
+# References
+
+[Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
 
