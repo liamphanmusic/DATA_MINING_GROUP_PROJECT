@@ -209,28 +209,43 @@ Type of Logistic Regression:
 
 ### Fit the Logistic Regression Model 
 
-```{r Fit Logistic Regression}
+```{r Dataset Duplicata}
 
+# Duplicate the Training and Validation Set
 Training_Logistic <- Training
 Validation_Logistic <- Validation
 
+# Remove the "ID" Variable
 Training_Logistic <- Training_Logistic[,-c("id")]
 Validation_Logistic <- Validation_Logistic[,-c("id")]
-
-#fit logistic regression model
-Logistic_Model_1 <- glm(Training_Logistic$diagnosis ~ ., family="binomial", data = Training_Logistic)
-
-#disable scientific notation for model summary
-options(scipen=999)
-
-#view model summary
-summary(Logistic_Model_1)
-
-
 
 ```
 
 
+```{r Fit Logistic Regression}
+
+# Fit The Logistic Regression Model
+Logistic_Model_1 <- glm(diagnosis ~ ., family="binomial", data = Training_Logistic)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_1)
+
+```
+
+> Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation, where 1 group is completely composed of 0s or 1s. To deal with this we should use a penalized model such as Firth's penalized method. (See **[Convergence Error in Logistic Regression]** in References)
+
+### Fit a penalized model for Logistic Regression
+
+```{r Fit Penalized Logistic Regression}
+
+
+
+
+
+```
 
 ### big
 
@@ -513,4 +528,6 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 # References
 
 [Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
+
+[Convergence Error in Logistic Regression](https://stackoverflow.com/questions/8596160/why-am-i-getting-algorithm-did-not-converge-and-fitted-prob-numerically-0-or)
 
