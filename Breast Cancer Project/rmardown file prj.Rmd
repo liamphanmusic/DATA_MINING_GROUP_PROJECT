@@ -221,42 +221,62 @@ Validation_Logistic <- Validation_Logistic[,-c("id")]
 
 ```
 
-
 ```{r Fit Logistic Regression}
 
 # Fit The Logistic Regression Model
-Logistic_Model_1 <- glm(diagnosis ~ ., family=binomial(link='logit'), data = Training_Logistic)
+Logistic_Model_1 <- glm(diagnosis ~ radius_mean + texture_mean + perimeter_mean + area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + compactness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se, family=binomial(link='logit'), data=Training_Logistic)
 
 # Disable Scientific Notation
 options(scipen=999)
 
 # Model Summary
 summary(Logistic_Model_1)
-
 ```
 
-> Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation, where 1 group is completely composed of 0s or 1s. To deal with this we should use a penalized model such as Firth's penalized method. (See **[Convergence Error in Logistic Regression]** in References)
+> Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation, where 1 group is completely composed of 0s or 1s. To deal with this we should use a penalized model because of too many variables included in our model compared to the number of observations. (See **[Convergence Error in Logistic Regression]** and **[Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net]** in References) 
 
-### Fit a penalized model for Logistic Regression
+### Fit a Penalized Model for Logistic Regression
+
+There is 3 differents methods when it comes to Penalized Logistic Regression Model:
+
+  1. **ridge regression**: variables with minor contribution have their coefficients close to zero. However, all the variables are incorporated in the model. This is useful when all variables need to be incorporated in the model according to domain knowledge.
+  2. **lasso regression**: the coefficients of some less contributive variables are forced to be exactly zero. Only the most significant variables are kept in the final model.
+  3. **elastic net regression**: the combination of ridge and lasso regression. It shrinks some coefficients toward zero (like ridge regression) and set some coefficients to exactly zero (like lasso regression)
+  
+For this case, we will use a **Lasso Regression Model**
 
 ```{r Fit Penalized Logistic Regression}
 
+# Required Packages
+library(tidyverse)
+library(caret)
 library(glmnet)
 
-# Fit The Logistic Regression Model
-Logistic_Model_2 <- glm(diagnosis ~ radius_mean , family=binomial(link='logit'), data = Training_Logistic)
+# Setting Seed
+set.seed(1)
 
-# Disable Scientific Notation
-options(scipen=999)
+#define response variable
+y_lasso <- as.numeric(Training_Logistic$diagnosis)
 
-# Model Summary
-summary(Logistic_Model_2)
+#define matrix of predictor variables
+x_lasso <- data.matrix(Training_Logistic[,-c("diagnosis")])
+
+#perform k-fold cross-validation to find optimal lambda value - alpha = 1 is for using Lasso Method
+cv_model <- cv.glmnet(x_lasso, y_lasso, alpha = 1)
+
+#find optimal lambda value that minimizes test MSE
+best_lambda <- cv_model$lambda.min
+best_lambda
+
+#produce plot of test MSE by lambda value
+plot(cv_model) 
 
 ```
 
-### big
 
-### stepwise front / back / both / exhaustive search 
+> Comments: 
+
+
 
 ## Classification Tree
 
@@ -537,4 +557,8 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 [Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
 
 [Convergence Error in Logistic Regression](https://stackoverflow.com/questions/8596160/why-am-i-getting-algorithm-did-not-converge-and-fitted-prob-numerically-0-or)
+
+[Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net](http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/)
+
+[Lasso Regression in R (Step-by-Step)](https://www.statology.org/lasso-regression-in-r/)
 
