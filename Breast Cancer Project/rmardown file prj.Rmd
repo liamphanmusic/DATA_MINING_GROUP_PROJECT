@@ -274,7 +274,7 @@ ORIGINAL_M<- data.frame(ORIGINAL) # remember to delete later
 ORIGINAL_M$diagnosis <- ifelse(ORIGINAL_M$diagnosis == "M", 1, 0)
 ORIGINAL_M$diagnosis <- as.factor(ORIGINAL_M$diagnosis) # To Factor Variable 
 ORIGINAL_M2<- ORIGINAL_M[,-c(1)]
-
+colnames(ORIGINAL_M2)
 
 splitting <- sample(1:3,size=nrow(ORIGINAL_M2),replace=TRUE,prob=c(0.5,0.3,0.2))
 Training <- ORIGINAL_M2[splitting==1,]
@@ -294,23 +294,29 @@ The outcome variable is a binary factor, we model a classification tree.
 We first run a deep tree, with all the features included.
 
 ### run tree: 
-```{r, fig.width=10,fig.height=10}
+```{r, fig.width=5,fig.height=5}
 
-# seed set globally
+set.seed(1)
+options(scipen=999)
+
 tree_full <- rpart(diagnosis ~ ., 
               data = Training, 
               method = "class",  # "class" because Y is a binary factor
               minbucket = 1,
-              maxdepth=30,
-              cp = 0.0001) 
+              cp = 0.00001) 
+
 
 # Plot tree
-rpart.plot(tree_full, yesno = TRUE, digits =-3)
+rpart.plot(tree_full, yesno = TRUE, digits =-6)
 
 length(tree_full$frame$var[tree_full$frame$var == "<leaf>"]) # End nodes
 
 relevance<-as.data.frame(tree_full$variable.importance) #we get the ranking of the variables by importance
-kable(relevance, row.names = T,col.names="Importance")%>% kable_paper("hover", full_width = T) #built table
+kable(relevance, row.names = T,col.names="Variable Importance")%>% kable_paper("hover", full_width = T) #built table
+
+
+printcp(tree_full, digits = 6)
+plotcp(tree_full, upper = "splits") # we plot the progression of complexity values
 ```
 
 
