@@ -129,6 +129,7 @@ ggplot(ORIGINAL.boxplot, aes(x = diagnosis, y = value)) +
 ## Correlation
 
 ```{r corrplot}
+
 # select numeric variables
 ORIGINAL_is.numeric <- ORIGINAL %>% 
   select_if(is.numeric)
@@ -143,6 +144,7 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
   labs(title="Correlation Heatmap",x="", y="")+
   geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(hjust=0.5))
+
 ```
 
 # Data Preparation
@@ -275,6 +277,7 @@ First I just run a discriminant analysis.
 First data prep before model -> center / scale, 
 
 ```{r DA data prep}
+
 ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
 ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
 
@@ -289,11 +292,13 @@ norm.value <- preProcess(ORIGINAL.DA.train, method = c("center", "scale"))
 ORIGINAL.DA.train <- predict(norm.value, ORIGINAL.DA.train)
 ORIGINAL.DA.valid <- predict(norm.value, ORIGINAL.DA.valid)
 ORIGINAL.DA.test <- predict(norm.value, ORIGINAL.DA.test)
+
 ```
 
 try with lda
 
 ```{r first DA}
+
 # Fit the model
 DA1 <- lda(diagnosis~., data = ORIGINAL.DA.train)
 
@@ -320,11 +325,13 @@ ylab = "Mean Response", main = "Decile-wise lift chart")
 # Evaluating LDA
 # doesn't work
 # klaR::partimat(diagnosis~., data = ORIGINAL.DA.train, method="lda", plot.matrix = FALSE)
+
 ```
 
 If bad -> Correlation in data -> qda continuing with it. If not continue with lda
 
 ```{r qda}
+
 # Fit the model
 DA2 <- qda(diagnosis~., data = ORIGINAL.DA.train)
 
@@ -347,6 +354,7 @@ prob <- as.numeric(DA2.pred.valid.prob)
 DA2.gain <- gains(actual, prob)
 barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
+
 ```
 
 Doesn't get better... lets continue with lda
@@ -354,6 +362,7 @@ Doesn't get better... lets continue with lda
 We see different proportions -> need to refit model with cost to proportion
 
 ```{r lda different proportions}
+
 # Fit the model
 DA3 <- lda(diagnosis~., data = ORIGINAL.DA.train)
 
@@ -376,6 +385,7 @@ prob <- as.numeric(DA2.pred.valid.prob)
 DA2.gain <- gains(actual, prob)
 barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
+
 ```
 
 we know missclassification bad -> cost for misclassification model
@@ -391,17 +401,19 @@ Some predictors unimportant -> remove some
 5th model
 
 ```{r data prep for DA}
+
 # remove outliers
 # use a different filter than boxplot?
 # https://statsandr.com/blog/outliers-detection-in-r/
 
 ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 
-}
+
 
 # normality -> log transform
 
 # correlation between groups
+
 ```
 
 
