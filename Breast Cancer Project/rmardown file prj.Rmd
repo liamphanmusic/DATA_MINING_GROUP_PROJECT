@@ -225,7 +225,7 @@ Validation_Logistic <- Validation_Logistic[,-c("id")]
 ```{r Fit Logistic Regression}
 
 # Fit The Logistic Regression Model
-Logistic_Model_1 <- glm(diagnosis ~ ., family="binomial", data = Training_Logistic)
+Logistic_Model_1 <- glm(diagnosis ~ ., family=binomial(link='logit'), data = Training_Logistic)
 
 # Disable Scientific Notation
 options(scipen=999)
@@ -241,9 +241,16 @@ summary(Logistic_Model_1)
 
 ```{r Fit Penalized Logistic Regression}
 
+library(glmnet)
 
+# Fit The Logistic Regression Model
+Logistic_Model_2 <- glm(diagnosis ~ radius_mean + , family=binomial(link='logit'), data = Training_Logistic)
 
+# Disable Scientific Notation
+options(scipen=999)
 
+# Model Summary
+summary(Logistic_Model_2)
 
 ```
 
