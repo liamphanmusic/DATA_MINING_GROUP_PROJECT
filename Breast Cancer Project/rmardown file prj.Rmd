@@ -244,7 +244,7 @@ summary(Logistic_Model_1)
 library(glmnet)
 
 # Fit The Logistic Regression Model
-Logistic_Model_2 <- glm(diagnosis ~ radius_mean + , family=binomial(link='logit'), data = Training_Logistic)
+Logistic_Model_2 <- glm(diagnosis ~ radius_mean , family=binomial(link='logit'), data = Training_Logistic)
 
 # Disable Scientific Notation
 options(scipen=999)
