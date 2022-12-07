@@ -203,7 +203,7 @@ Assumptions for Logistic Regression:
   
 Type of Logistic Regression: 
 
-  1. **Binomial** (we will use this type since we only have binary outcomes, malign or benign)
+  1. **Binomial** (we will use this type since we only have binary outcomes, malign=1 or benign=0)
   2. Multinational 
   3. Ordinal 
 
