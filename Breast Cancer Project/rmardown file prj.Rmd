@@ -6,9 +6,11 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE, set.seed(1)}
+
 knitr::opts_chunk$set(echo = TRUE,
                       cache = TRUE)
 rm(list = ls())
+
 ```
 
 ```{r Libraries and functions, message=FALSE, warning= FALSE}
@@ -42,6 +44,7 @@ library(klaR) # partimat
 ```
 
 ```{r}
+
 # Confusion matrix
 draw_confusion_matrix <- function(cm) {
   layout(matrix(c(1,1,2)))
@@ -89,6 +92,7 @@ draw_confusion_matrix <- function(cm) {
   text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
   text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
 }  
+
 ```
 
 # Data Analysis
@@ -96,10 +100,12 @@ draw_confusion_matrix <- function(cm) {
 ## Structure of Data
 
 ```{r Data reading}
+
 ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
 
 # printing sumamry
 print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
+
 ```
 
 ## Missing values
@@ -107,6 +113,7 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 ## Distribution of Data
 
 ```{r boxplots}
+
 norm.value <- preProcess(ORIGINAL, method = c("center", "scale"))
 ORIGINAL.boxplot <- predict(norm.value, ORIGINAL)
 ORIGINAL.boxplot <-  melt(select(ORIGINAL.boxplot, -c(id)))
@@ -116,6 +123,7 @@ ggplot(ORIGINAL.boxplot, aes(x = diagnosis, y = value)) +
   facet_wrap(~variable) + 
   stat_boxplot(geom ='errorbar') + 
   geom_boxplot()
+
 ```
 
 ## Correlation
@@ -142,6 +150,7 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 ## General 
 
 ## Transformation
+
 ```{r}
 
 ORIGINAL[diagnosis == "M", c("diagnosis")] <- 1
@@ -157,7 +166,9 @@ ORIGINAL center scale
 ORIGINAL range
 
 ## Partitioning 
+
 ```{r}
+
 splitting <- sample(1:3,size=nrow(ORIGINAL),replace=TRUE,prob=c(0.5,0.3,0.2))
 Training <- ORIGINAL[splitting==1,]
 Validation <- ORIGINAL[splitting==2,]
@@ -178,6 +189,8 @@ TRAINING 50, val 30, TEST 20
 # Supervised Learning
 
 ## Logistic Regression
+
+
 
 ### big
 
@@ -335,6 +348,7 @@ DA2.gain <- gains(actual, prob)
 barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
 ```
+
 Doesn't get better... lets continue with lda
 
 We see different proportions -> need to refit model with cost to proportion
@@ -390,9 +404,10 @@ ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 # correlation between groups
 ```
 
-```
 
 ```{r base model}
+
+```
 
 ## Ensemble Methods
 
@@ -413,8 +428,6 @@ ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 ## Cluster Analysis
 
 # Conclusion
-
-
 
 ```{r Data reading}
 
