@@ -42,7 +42,7 @@ library(dplyr)
 library(klaR) # partimat
 library(forecast)
 library(pROC)
-library(verification)
+
 
 ```
 
@@ -285,6 +285,7 @@ plot(cv_model)
 ## Classification Tree
 
 
+
 ```{r}
 set.seed(1)
 # data.preparation
@@ -313,6 +314,8 @@ paste("The Proportions are:", round(Prop_Training,2),"% In Training,",round(Prop
 
 The outcome variable is a binary factor, we model a classification tree.
 We first run a deep tree, with all the features included.
+Then proceed to reduce the size of the deeper tree through pruning.
+
 
 ### run tree: 
 ```{r, fig.width=5,fig.height=5}
@@ -326,22 +329,20 @@ tree_full <- rpart(diagnosis ~ .,
               minbucket = 1,
               cp = 0.00001) 
 
-
 # Plot tree
 rpart.plot(tree_full, yesno = TRUE, digits =-6)
-
 length(tree_full$frame$var[tree_full$frame$var == "<leaf>"]) # End nodes
 
 relevance<-as.data.frame(tree_full$variable.importance) #we get the ranking of the variables by importance
 kable(relevance, row.names = T,col.names="Variable Importance")%>% kable_paper("hover", full_width = T) #built table
 
 
-printcp(tree_full, digits = 6)
+printcp(tree_full, digits = 6) # print complexity value
 plotcp(tree_full, upper = "splits") # we plot the progression of complexity values
 
 #Prune the tree
 min_xerr<- which.min(tree_full$cptable[,"xerror"]) # select minimum cross-validation error
-cp_bp <- tree_full$cptable[min_xerr,"CP"] # find the corresponding CP value, to get teh "best pruned " tree
+cp_bp <- tree_full$cptable[min_xerr,"CP"] # find the corresponding CP value, to get the "best pruned " tree
 
 
 pruned_tree<- prune(tree_full, cp = cp_bp) # re-compute the tree with the selected Cp
@@ -349,13 +350,14 @@ rpart.plot(pruned_tree, yesno = TRUE, digits =-3)
 length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end nodes
 ```
 
+The fully grown tree is quite reduced in size, we still pruned the tree.
 
 ### Performance of Best Pruned Tree
 
 ```{r}
-length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end nodes
+# classification prediction over validation data
 pruned_pred <- predict(pruned_tree, Validation, type = "class")
-pruned_prob <- predict(pruned_tree, Validation, type = "prob")
+pruned_prob <- predict(pruned_tree, Validation, type = "prob") # probabilities of belonging to 1
 
 
 # confusion matrix and accuracy of classification tree
@@ -364,7 +366,7 @@ draw_confusion_matrix(tree_cf)
 
 ```
 
-
+Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy pretty high.
 
 ```{r}
 #ROC curve
@@ -605,9 +607,29 @@ ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 
 ### bagging
 
+```{r}
+set.seed(1)
+bagging<- bagging(diagnosis ~ ., data =Training)
+```
+
+
 ### boosting
 
+```{r}
+set.seed(1)
+boosting <- boosting(diagnosis ~ ., data = Training)
+```
+
+
 ### rf
+
+```{r}
+set.seed(1)
+rand_f <- randomForest(diagnosis ~ ., data = Training, mtry=4, importance = T)
+varImpPlot(rand_f, type=1) # we print out the variable importance plot too
+# print it better
+```
+
 
 ### majority vote -> combined
 
@@ -659,4 +681,6 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 [Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net](http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/)
 
 [Lasso Regression in R (Step-by-Step)](https://www.statology.org/lasso-regression-in-r/)
+
+[ROC Curve](https://www.digitalocean.com/community/tutorials/plot-roc-curve-r-programming)
 
