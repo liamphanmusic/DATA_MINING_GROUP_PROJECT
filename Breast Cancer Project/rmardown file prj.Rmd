@@ -41,7 +41,8 @@ library(MASS) # lda, qda, etc.
 library(dplyr)
 library(klaR) # partimat
 library(forecast)
-
+library(pROC)
+library(verification)
 
 ```
 
@@ -353,12 +354,26 @@ length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end 
 
 ```{r}
 length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end nodes
-pruned_pred <- predict(pruned_tree, valid.df, type = "class")
+pruned_pred <- predict(pruned_tree, Validation, type = "class")
+pruned_prob <- predict(pruned_tree, Validation, type = "prob")
+
 
 # confusion matrix and accuracy of classification tree
-tree_cf<- confusionMatrix(pruned_pred, valid.df$Personal.Loan, positive = "1")
-tree_cf$overall[1]
-# add senditivity
+tree_cf<- confusionMatrix(pruned_pred, Validation$diagnosis, positive = "1")
+draw_confusion_matrix(tree_cf)
+
+```
+
+
+
+```{r}
+#ROC curve
+response <- data.frame(Validation[,1], pruned_pred) 
+response$Validation...1.<- as.numeric(as.character(response$Validation...1.))
+response$pruned_pred<- as.numeric(as.character(response$pruned_pred))
+roc_score <- roc(data= response , response=Validation...1., pruned_pred) #AUC score
+plot(roc_score ,main ="ROC curve")
+
 
 ```
 
