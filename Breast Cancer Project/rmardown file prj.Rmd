@@ -610,6 +610,10 @@ ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
 ```{r}
 set.seed(1)
 bagging<- bagging(diagnosis ~ ., data =Training)
+bag_pred<- predict(bagging, Validation, type="class")
+bag_cf <- confusionMatrix(as.factor(bag_pred$class), Validation$diagnosis, positive = "1")
+draw_confusion_matrix(bag_cf)
+
 ```
 
 
@@ -618,16 +622,53 @@ bagging<- bagging(diagnosis ~ ., data =Training)
 ```{r}
 set.seed(1)
 boosting <- boosting(diagnosis ~ ., data = Training)
+boost_pred<- predict(boosting, Validation, type="class")
+boost_cf <- confusionMatrix(as.factor(boost_pred$class), Validation$diagnosis, positive = "1")
+draw_confusion_matrix(boost_cf)
 ```
 
 
-### rf
+### Random Forests
 
 ```{r}
 set.seed(1)
 rand_f <- randomForest(diagnosis ~ ., data = Training, mtry=4, importance = T)
-varImpPlot(rand_f, type=1) # we print out the variable importance plot too
-# print it better
+varImpPlot(rand_f, type=1,cex = 0.7) # we print out the variable importance plot too
+
+rf_pred<- predict(rand_f, Validation, type="class")
+rf_cf <- confusionMatrix(as.factor(rf_pred), Validation$diagnosis, positive = "1")
+draw_confusion_matrix(rf_cf)
+```
+
+
+### ROC curves
+
+```{r}
+ # For the boosting
+response_boost <- data.frame(Validation[,1], boost_pred$class) 
+response_boost$Validation...1.<- as.numeric(as.character(response_boost[,1]))
+response_boost$boost_pred.class<- as.numeric(as.character(response_boost[,2]))
+roc_score_boost <- roc(data= response_boost , response=Validation...1., boost_pred.class) #AUC score
+
+
+# For bagging
+response_bag <- data.frame(Validation[,1], bag_pred$class) 
+response_bag$Validation...1.<- as.numeric(as.character(response_bag[,1]))
+response_bag$bag_pred.class<- as.numeric(as.character(response_bag[,2]))
+roc_score_bag <- roc(data= response_bag , response=Validation...1., bag_pred.class) #AUC score
+
+
+# For Random Forests
+response_rf <- data.frame(Validation[,1], rf_pred) 
+response_rf$Validation...1.<- as.numeric(as.character(response_rf[,1]))
+response_rf$rf_pred<- as.numeric(as.character(response_rf[,2]))
+roc_score_rf <- roc(data= response_rf , response=Validation...1., rf_pred) #AUC score
+
+# Plot ROC curves side by side
+par(mfrow=c(1,3)) 
+plot(roc_score_boost ,main ="ROC curve for Boosting", cex= 1)
+plot(roc_score_bag ,main ="ROC curve for Bagging", cex=1)
+plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 ```
 
 
