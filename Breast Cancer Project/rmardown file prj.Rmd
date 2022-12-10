@@ -43,10 +43,9 @@ library(klaR) # partimat
 library(forecast)
 library(pROC)
 
-
 ```
 
-```{r}
+```{r Confusion Matrix Function (See in References)}
 
 # Confusion matrix
 draw_confusion_matrix <- function(cm) {
@@ -105,7 +104,6 @@ draw_confusion_matrix <- function(cm) {
 ```{r Data reading}
 
 ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
-
 
 # printing sumamry
 print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
@@ -179,6 +177,7 @@ ORIGINAL range
 
 ```{r Partitioning the Dataset}
 
+# Splitting each Set from the ORIGINAL Dataset
 splitting <- sample(1:3,size=nrow(ORIGINAL),replace=TRUE,prob=c(0.5,0.3,0.2))
 Training <- ORIGINAL[splitting==1,]
 Validation <- ORIGINAL[splitting==2,]
@@ -210,7 +209,7 @@ Type of Logistic Regression:
   1. **Binomial** (we will use this type since we only have binary outcomes, malign or benign)
   2. Multinational 
   3. Ordinal 
-
+  
 ### Fit the Logistic Regression Model 
 
 ```{r Dataset Duplicata}
@@ -310,20 +309,203 @@ summary(Logistic_Model_After)
 
 ```
 
-> Comments: Eventough we did a Lasso Regression, we can see that our standard Logistic Regression fails to converge with this selection of variables. This is could be due to the number of variables, 23 in our case and the low number of observations. 
+> Comments: Eventhough we did a Lasso Regression, we can see that our standard Logistic Regression fails to converge with this selection of variables. This is could be due to the number of variables, 23 in our case and the low number of observations. Now it's the time to check our VIF, since Multicolinearity could be our main source of problem.
 
-```{r Logistic Regression after Lasso and AIC}
+### Test For Multicolinearity in Our Dataset using VIF - First Iteration
 
-# Fit The Logistic Regression Model with only selected variables from Lasso
-Logistic_Model_After <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + radius_worst + texture_worst + area_worst + concavity_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
+```{r VIF for Logistic Regression - 1}
+
+# Load the car library
+library(car)
+
+# Create vector of VIF values
+vif_values <- vif(Logistic_Model_After)
+
+# Create horizontal bar chart to display each VIF value
+barplot(vif_values, main = "VIF Values - First Iteration", horiz = FALSE, col = "steelblue", las=2)
+
+# Add vertical line at 5
+abline(h = 5, lwd = 3, lty = 2)
+
+# Call VIF Values
+vif_values
+
+```
+
+
+> Comments: We can see that most of our variables have multicolinearity (with VIF over 5). We need to remove variables with the highest VIF first. We can start by removing at least 8 variables: radius_worst, area_worst, concavity_worst, concavity_mean, concavity_worst, fractal_dimension_se, concavity_se and concave points_mean. 
+
+### Logistic Regression with VIF removing 8 variables - First Iteration
+
+```{r Logistic Regression after VIF - 1}
+
+
+# Fit The Logistic Regression Model
+Logistic_Model_After_VIF1 <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + `concave points_se` + symmetry_se + texture_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
 
 # Disable Scientific Notation
 options(scipen=999)
 
 # Model Summary
-summary(Logistic_Model_After)
+summary(Logistic_Model_After_VIF1)
 
 ```
+
+> Comments: Even after removing 8 variables, our model still suffer from Convergence error, let's check our VIF again.
+
+
+### Test For Multicolinearity in Our Dataset using VIF - Second Iteration
+
+```{r VIF for Logistic Regression - 2}
+
+# Load the car library
+library(car)
+
+# Create vector of VIF values
+vif_values_2 <- vif(Logistic_Model_After_VIF1)
+
+# Create horizontal bar chart to display each VIF value
+barplot(vif_values_2, main = "VIF Values - Second Iteration", horiz = FALSE, col = "steelblue", las=2)
+
+# Add vertical line at 5
+abline(h = 5, lwd = 3, lty = 2)
+
+# Call VIF Values
+vif_values_2
+
+```
+
+> Comments: We can still see high VIF values in our variables, let's remove 6 variables again: radius_se, perimeter_se, area_se, compactness_mean, texture_se and texture_worst.
+
+### Logistic Regression with VIF removing 6 variables - Second Iteration
+
+```{r Logistic Regression after VIF - 2}
+
+# Fit The Logistic Regression Model
+Logistic_Model_After_VIF2 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + fractal_dimension_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_After_VIF2)
+
+```
+
+> Comments: Now we can see that our Regression Model Converge, let's compute a third iteration of VIF to check the multicolinearity. 
+
+### Test For Multicolinearity in Our Dataset using VIF - Third Iteration
+
+```{r VIF for Logistic Regression - 3}
+
+# Load the car library
+library(car)
+
+# Create vector of VIF values
+vif_values_3 <- vif(Logistic_Model_After_VIF2)
+
+# Create horizontal bar chart to display each VIF value
+barplot(vif_values_3, main = "VIF Values - Third Iteration", horiz = FALSE, col = "steelblue", las=2)
+
+# Add vertical line at 5
+abline(h = 5, lwd = 3, lty = 2)
+
+# Call VIF Values
+vif_values_3
+
+```
+
+> Comments: We are indeed improved our VIF model by excluding a lot of multicolinear variables, we can still see 3 variables suffering from a VIF higher than 5, let's remove **fractal_dimension_mean** and see if it improves everything.
+
+### Logistic Regression with VIF removing 6 variables - Third Iteration
+
+```{r Logistic Regression after VIF - 3}
+
+# Fit The Logistic Regression Model with only selected variables from Lasso
+Logistic_Model_After_VIF3 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_After_VIF3)
+
+```
+
+> Comments: Now we can see that our Regression Model Converge, let's compute a fourth iteration of VIF to check the multicolinearity. 
+
+### Test For Multicolinearity in Our Dataset using VIF - Fourth Iteration
+
+```{r VIF for Logistic Regression - 4}
+
+# Load the car library
+library(car)
+
+# Create vector of VIF values
+vif_values_4 <- vif(Logistic_Model_After_VIF3)
+
+# Create horizontal bar chart to display each VIF value
+barplot(vif_values_4, main = "VIF Values - Fourth Iteration", horiz = FALSE, col = "steelblue", las=2)
+
+# Add vertical line at 5
+abline(h = 5, lwd = 3, lty = 2)
+
+# Call VIF Values
+vif_values_4
+
+```
+
+> Comments: We can see that our highest VIF values come from **symmetry_worst**, we can remove it and check if our model is now free of multicolinearity issues.
+
+### Logistic Regression with VIF removing 6 variables - Fifth Iteration (Last)
+
+```{r Logistic Regression after VIF - 5}
+
+# Fit The Logistic Regression Model with only selected variables from Lasso
+Logistic_Model_After_VIF4 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst` + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_After_VIF4)
+
+```
+
+> Comments: We improved some significance level removing this high VIF variable.
+
+### Test For Multicolinearity in Our Dataset using VIF - Fifth Iteration (Last)
+
+```{r VIF for Logistic Regression - 5}
+
+# Load the car library
+library(car)
+
+# Create vector of VIF values
+vif_values_5<- vif(Logistic_Model_After_VIF4)
+
+# Create horizontal bar chart to display each VIF value
+barplot(vif_values_5, main = "VIF Values - Fourth Iteration", horiz = FALSE, col = "steelblue", las=2)
+
+# Add vertical line at 5
+abline(h = 5, lwd = 3, lty = 2)
+
+# Call VIF Values
+vif_values_5
+
+```
+
+> Comments: Now we can see that all our selected variables are not subject to multicolinearity anymore. Let's use this model to compute some predictions.
+
+```{r predicting with Lasso regression after VIF iterations}
+
+
+
+
+
+```
+
+
 
 
 ## Classification Tree
@@ -726,35 +908,6 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 # Conclusion
 
-```{r Data reading}
-
-ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
-
-# printing sumamry
-print(ORIGINALSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
-
-```
-
-```{r corrplot, fig.width=19,fig.height=19}
-# select numeric variables
-ORIGINAL_is.numeric <- ORIGINAL %>% 
-  select_if(is.numeric)
-
-ORIGINAL_heatmap <- round(cor(ORIGINAL_is.numeric, use = "complete.obs"), 1)
-ORIGINAL_heatmap <- melt(ORIGINAL_heatmap)
-
-#  corrplot
-ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
-  geom_tile()+
-  scale_fill_gradient(low = "pink", high = "dark red")+
-  labs(title="Correlation Heatmap",x="", y="")+
-  geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 10), plot.title = element_text(hjust=0.5, size=10))
-```
-
-
-
-
 # References
 
 [Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
@@ -766,4 +919,6 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 [Lasso Regression in R (Step-by-Step)](https://www.statology.org/lasso-regression-in-r/)
 
 [ROC Curve](https://www.digitalocean.com/community/tutorials/plot-roc-curve-r-programming)
+
+[VIF Inflation Error](https://www.statology.org/variance-inflation-factor-r/)
 
