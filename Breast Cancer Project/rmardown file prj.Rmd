@@ -507,6 +507,7 @@ vif_values_5
 > Comments: Now we can see that all our selected variables are not subject to multicolinearity anymore. Let's use this model to compute some predictions.
 
 
+### Predictions
 #### Logistic Lasso Regression - Predictions and Confusion Matrix on Validation
 
 ```{r LR Predictions and Confusion Matrix Validation}
@@ -890,8 +891,7 @@ Validation_NN_Preprocess <- predict(Norm_NN, Validation_NN)
 
 ### Fitting Neural Networks 
 
-
-#### Basic Neural Network with 3 hidden layers
+#### Basic Neural Network with 3 hidden nodes - Neural Model 1
 
 <center>
 
@@ -911,22 +911,104 @@ plot(Neural_1)
 
 </center>
 
->Comments:
 
-#### Predictions and Confusion Matrix
+#### Predictions and Confusion Matrix - Neural Model 1
 
 ```{r Predictions and Confusion Matrix for NN 1}
 
+# Predictions
 Predictions_NN1 <- predict(Neural_1, Validation_NN_Preprocess, type="response")
 Predictions_NN1_Probabilities <- Predictions_NN1[,2]
 
+# Rounding Predictions - 0.5 Threshold
+Predictions_NN1_Dummy <- round(Predictions_NN1_Probabilities)
 
+# As Numeric
+Predictions_NN1_Dummy <- as.numeric(Predictions_NN1_Dummy)
 
+# Check rounding in a Dataframe
+DF_Neural_Predictions <- cbind(Predictions_NN1_Probabilities, Predictions_NN1_Dummy)
+
+# As Factor
+Predictions_NN1_Dummy <- factor(Predictions_NN1_Dummy)
+Validation_NN_Preprocess$diagnosis <- factor(Validation_NN_Preprocess$diagnosis)
+
+# Confusion Matrix
+Confusion_Matrix_Neural_1 <- confusionMatrix(data = Predictions_NN1_Dummy, reference = Validation_NN_Preprocess$diagnosis)
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Neural_1 <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Neural Network - 3 Hidden Nodes', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Neural_1(Confusion_Matrix_Neural_1)
 
 ```
 
+> Comments: 
 
-#### Advanced Neural Network with Optimal Number of Hidden Layers
+
+#### ROC Curve - Neural Model 1 
+
+```{r ROC Curve NN1}
+
+# Load ROCR Package
+library(ROCR)
+
+# Plot our ROC Curve
+prNN1 <- ROCR::prediction(Predictions_NN1_Probabilities, Validation_NN_Preprocess$diagnosis)
+prfNN1 <- ROCR::performance(prNN1, measure = "tpr", x.measure = "fpr")
+plot(prfNN1, main="ROC for Validation Set")
+abline(a = 0, b = 1) 
+
+```
+
+>Comments:
+
+#### Advanced Neural Network with Optimal Number of Hidden Nodes - Model 2
 
 > Some rules of thumb can help in deciding the structure of our Neural Network Model, here are some from Stackoverflow and the book **Introduction to Neural Networks for Java (second edition)** by Jeff Heaton:
 
@@ -940,17 +1022,17 @@ Since we have 30 input nodes (30 features/variables) and 2 output nodes (2 Class
 
 <center>
 
-```{r Neural Network - Model 1}
+```{r Neural Network - Model 2}
 
 # Load library
 library(neuralnet)
 library(nnet)
 library(devtools)
 
-# Fit neural network with 3 hidden layers
+# Fit neural network with 15 hidden nodes
 Neural_2 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=15, linear.output = FALSE)
 
-# Plot Neural Network Model 1
+# Plot Neural Network Model 2
 plot(Neural_2)
 
 ```
@@ -958,6 +1040,212 @@ plot(Neural_2)
 </center>
 
 >Comments: 
+
+#### Predictions and Confusion Matrix - Neural Model 2
+
+<center>
+
+```{r Predictions and Confusion Matrix for NN 2}
+
+# Predictions 
+Predictions_NN2 <- predict(Neural_2, Validation_NN_Preprocess, type="response")
+Predictions_NN2_Probabilities <- Predictions_NN2[,2]
+
+# Rounding Predictions - 0.5 Threshold 
+Predictions_NN2_Dummy <- round(Predictions_NN2_Probabilities)
+
+# As Numeric
+Predictions_NN2_Dummy <- as.numeric(Predictions_NN2_Dummy)
+
+# Check rounding in a Dataframe
+DF_Neural_Predictions_2 <- cbind(Predictions_NN2_Probabilities, Predictions_NN2_Dummy)
+
+# As Factor
+Predictions_NN2_Dummy <- factor(Predictions_NN2_Dummy)
+Validation_NN_Preprocess$diagnosis <- factor(Validation_NN_Preprocess$diagnosis)
+
+# Confusion Matrix
+Confusion_Matrix_Neural_2 <- confusionMatrix(data = Predictions_NN2_Dummy, reference = Validation_NN_Preprocess$diagnosis)
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Neural_2 <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Neural Network - Model 2', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Neural_2(Confusion_Matrix_Neural_2)
+
+```
+
+</center>
+
+> Comments: 
+
+#### ROC Curve - Neural Model 2
+
+<center>
+
+```{r ROC Curve NN2}
+
+# Load ROCR Package 
+library(ROCR) 
+
+# Plot our ROC Curve 
+prNN2 <- ROCR::prediction(Predictions_NN2_Probabilities, Validation_NN_Preprocess$diagnosis)
+prfNN2 <- ROCR::performance(prNN2, measure = "tpr", x.measure = "fpr")
+plot(prfNN2, main="ROC for Validation Set")
+abline(a = 0, b = 1) 
+
+```
+
+</center>
+
+>Comments: 
+
+#### Advanced Neural Network with 2 Hidden Layers and 15 Hidden Nodes - Model 3
+
+<center>
+
+```{r Neural Network - Model 2}
+
+# Load library
+library(neuralnet)
+library(nnet)
+library(devtools)
+
+# Fit neural network with 15 hidden nodes
+Neural_3 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=c(15,15), linear.output = FALSE)
+
+# Plot Neural Network Model 2
+plot(Neural_3)
+
+```
+
+</center>
+
+#### Predictions and Confusion Matrix - Neural Model 3
+
+<center>
+
+```{r Predictions and Confusion Matrix for NN 3}
+
+# Predictions 
+Predictions_NN3 <- predict(Neural_3, Validation_NN_Preprocess, type="response")
+Predictions_NN3_Probabilities <- Predictions_NN3[,2]
+
+# Rounding Predictions - 0.5 Threshold 
+Predictions_NN3_Dummy <- round(Predictions_NN3_Probabilities)
+
+# As Numeric
+Predictions_NN3_Dummy <- as.numeric(Predictions_NN3_Dummy)
+
+# Check rounding in a Dataframe
+DF_Neural_Predictions_3 <- cbind(Predictions_NN3_Probabilities, Predictions_NN3_Dummy)
+
+# As Factor
+Predictions_NN3_Dummy <- factor(Predictions_NN3_Dummy)
+Validation_NN_Preprocess$diagnosis <- factor(Validation_NN_Preprocess$diagnosis)
+
+# Confusion Matrix
+Confusion_Matrix_Neural_3 <- confusionMatrix(data = Predictions_NN3_Dummy, reference = Validation_NN_Preprocess$diagnosis)
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Neural_3 <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Neural Network - Model 3', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Neural_3(Confusion_Matrix_Neural_3)
+
+```
+
+</center>
+
+
 
 ## Discriminant Analysis
 
