@@ -1745,6 +1745,16 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 ## Cluster Analysis
 
+> This Cluster Analysis will be done in 2 parts, first with Hierarchical Clustering and then with K-means Clustering. 
+
+### Hierarchical Clustering
+
+### K-Means Clustering
+
+
+
+
+
 # Conclusion
 
 # References
@@ -1768,6 +1778,8 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 [How to choose the number of hidden layers and nodes in a feedforward neural network?](https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw)
 
 [Introduction to Neural Networks for Java (second edition) by Jeff Heaton - Google Books](https://books.google.it/books?id=Swlcw7M4uD8C&pg=PA158&lpg=PA158&dq=Introduction%20to%20Neural%20Networks%20for%20Java,%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&source=bl&ots=TJx9QaeWw6&sig=gZqg9e73K1oCqWBxmcBWAf2pbrE&hl=it&sa=X&ved=0CCUQ6AEwAGoVChMIudnOsJr1yAIVwjkaCh3AAgnU#v=onepage&q=Introduction%20to%20Neural%20Networks%20for%20Java%2C%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&f=false)
+
+[Cluster Analysis in R](https://www.r-bloggers.com/2021/04/cluster-analysis-in-r/)
 
 
 
