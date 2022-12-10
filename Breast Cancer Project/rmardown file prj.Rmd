@@ -280,7 +280,7 @@ plot(cv_model)
 
 > Comments: We want to use the lowest MSE and thus find the optimal Lambda. 
 
-```{r best alpha}
+```{r Best Lambda for Lasso}
 
 # Use optimal lambda value and alpha = 1 is for using Lasso Method
 Logistic_Lasso_Optimal <- glmnet(x_lasso, y_lasso, alpha = 1, lambda = best_lambda)
@@ -293,12 +293,37 @@ Logistic_Lasso_Optimal$beta
 
 ```
 
-> Comments: We can see that our Logistic Model has shrunk some variables to 0, this can be expected when using Lasso Regression, since it will get rid of unsignificant variables completely. 
+> Comments: We can see that our Logistic Model has shrunk some variables to 0, this can be expected when using Lasso Regression, since it will get rid of unsignificant variables completely instead of setting a very low coefficient. 
 
 ### Logistic Regression using Variables from Lasso Selection
 
+```{r Logistic Regression after Lasso}
 
+# Fit The Logistic Regression Model with only selected variables from Lasso
+Logistic_Model_After <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + radius_worst + texture_worst + area_worst + concavity_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
 
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_After)
+
+```
+
+> Comments: Eventough we did a Lasso Regression, we can see that our standard Logistic Regression fails to converge with this selection of variables. This is could be due to the number of variables, 23 in our case and the low number of observations. 
+
+```{r Logistic Regression after Lasso and AIC}
+
+# Fit The Logistic Regression Model with only selected variables from Lasso
+Logistic_Model_After <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + radius_worst + texture_worst + area_worst + concavity_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+summary(Logistic_Model_After)
+
+```
 
 
 ## Classification Tree
