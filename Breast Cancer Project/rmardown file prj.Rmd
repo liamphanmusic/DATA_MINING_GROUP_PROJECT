@@ -225,6 +225,7 @@ Validation_Logistic <- Validation_Logistic[,-c("id")]
 
 ```
 
+
 ```{r Fit Logistic Regression}
 
 # Fit The Logistic Regression Model
@@ -237,7 +238,7 @@ options(scipen=999)
 summary(Logistic_Model_1)
 ```
 
-> Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation, where 1 group is completely composed of 0s or 1s. To deal with this we should use a penalized model because of too many variables included in our model compared to the number of observations. (See **[Convergence Error in Logistic Regression]** and **[Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net]** in References) 
+> Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation. To deal with this we should use a penalized model because of too many variables included in our model compared to the number of observations. (See **[Convergence Error in Logistic Regression]** and **[Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net]** in References) 
 
 ### Fit a Penalized Model for Logistic Regression
 
@@ -247,7 +248,7 @@ There is 3 differents methods when it comes to Penalized Logistic Regression Mod
   2. **lasso regression**: the coefficients of some less contributive variables are forced to be exactly zero. Only the most significant variables are kept in the final model.
   3. **elastic net regression**: the combination of ridge and lasso regression. It shrinks some coefficients toward zero (like ridge regression) and set some coefficients to exactly zero (like lasso regression)
   
-For this case, we will use a **Lasso Regression Model**
+For this case, we will use a **Lasso Regression Model** being way more strict in attributing less to no weight to variables not significant enough. 
 
 ```{r Fit Penalized Logistic Regression}
 
@@ -259,32 +260,48 @@ library(glmnet)
 # Setting Seed
 set.seed(1)
 
-#define response variable
+# Define response variable
 y_lasso <- as.numeric(Training_Logistic$diagnosis)
 
-#define matrix of predictor variables
+# Define matrix of predictor variables
 x_lasso <- data.matrix(Training_Logistic[,-c("diagnosis")])
 
-#perform k-fold cross-validation to find optimal lambda value - alpha = 1 is for using Lasso Method
+# Perform k-fold cross-validation to find optimal lambda value - alpha = 1 is for using Lasso Method
 cv_model <- cv.glmnet(x_lasso, y_lasso, alpha = 1)
 
-#find optimal lambda value that minimizes test MSE
+# Find optimal lambda value that minimizes test MSE
 best_lambda <- cv_model$lambda.min
-best_lambda
+print(paste("Best Lambda is equal to",best_lambda))
 
-#produce plot of test MSE by lambda value
+# Produce plot of test MSE by lambda value
 plot(cv_model) 
 
 ```
 
+> Comments: We want to use the lowest MSE and thus find the optimal Lambda. 
 
-> Comments: 
+```{r best alpha}
+
+# Use optimal lambda value and alpha = 1 is for using Lasso Method
+Logistic_Lasso_Optimal <- glmnet(x_lasso, y_lasso, alpha = 1, lambda = best_lambda)
+
+# Disable Scientific Notation
+options(scipen=999)
+
+# Model Summary
+Logistic_Lasso_Optimal$beta
+
+```
+
+> Comments: We can see that our Logistic Model has shrunk some variables to 0, this can be expected when using Lasso Regression, since it will get rid of unsignificant variables completely. 
+
+### Logistic Regression using Variables from Lasso Selection
+
+
 
 
 
 ## Classification Tree
-
-
 
 ```{r}
 set.seed(1)
