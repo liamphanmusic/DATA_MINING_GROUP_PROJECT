@@ -160,7 +160,7 @@ ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
 
 ## Transformation
 
-```{r Transform Outcome Variable to Binary Factor Variable}
+```{r Transform}
 
 # Transform Character Format to Binary Numerical Values on Outcome Variable "Diagnosis"
 
@@ -874,12 +874,17 @@ Training_NN <- Training
 Validation_NN <- Validation
 
 # Make Sure to be as Dataframe
-Training_NN <- as.data.frame(Training_NN)
-Validation_NN <- as.data.frame(Validation_NN)
+Training_NN <- data.frame(Training_NN)
+Validation_NN <- data.frame(Validation_NN)
 
 # Remove the "ID" Variable
-Training_NN <- Training_NN[,-c("id")]
-Validation_NN <- Validation_NN[,-c("id")]
+Training_NN <- Training_NN[,-1]
+Validation_NN <- Validation_NN[,-1]
+
+# Preprocess Data
+Norm_NN <- preProcess(Training_NN, method = c("center", "scale"))
+Training_NN_Preprocess <- predict(Norm_NN, Training_NN)
+Validation_NN_Preprocess <- predict(Norm_NN, Validation_NN)
 
 ```
 
@@ -891,19 +896,11 @@ Validation_NN <- Validation_NN[,-c("id")]
 library(neuralnet)
 library(nnet)
 
-# Preprocess Data
-Norm_NN <- preProcess(Training_NN, method = c("center", "scale"))
-Training_NN_Preprocess <- predict(Norm_NN, Training_NN)
-Validation_NN_Preprocess <- predict(Norm_NN, Validation_NN)
-
-# Factor Diagnosis Variable
-Training_NN_Preprocess$diagnosis <- factor(Training_NN_Preprocess$diagnosis)
-Validation_NN_Preprocess$diagnosis <- factor(Validation_NN_Preprocess$diagnosis)
-
 # Fit neural network with 3 hidden layers
-Neural_1 <- neuralnet(Training_NN_Preprocess ~ ., data = Training_NN_Preprocess, hidden=3, linear.output = FALSE)
+Neural_1 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=3, linear.output = FALSE)
 
-
+# Plot Neural Network Model 1
+plot(Neural_1)
 
 
 ```
