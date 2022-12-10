@@ -890,6 +890,11 @@ Validation_NN_Preprocess <- predict(Norm_NN, Validation_NN)
 
 ### Fitting Neural Networks 
 
+
+#### Basic Neural Network with 3 hidden layers
+
+<center>
+
 ```{r Neural Network - Model 1}
 
 # Load library
@@ -902,12 +907,57 @@ Neural_1 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=3, li
 # Plot Neural Network Model 1
 plot(Neural_1)
 
+```
+
+</center>
+
+>Comments:
+
+#### Predictions and Confusion Matrix
+
+```{r Predictions and Confusion Matrix for NN 1}
+
+Predictions_NN1 <- predict(Neural_1, Validation_NN_Preprocess, type="response")
+Predictions_NN1_Probabilities <- Predictions_NN1[,2]
+
+
+
 
 ```
 
 
+#### Advanced Neural Network with Optimal Number of Hidden Layers
 
+> Some rules of thumb can help in deciding the structure of our Neural Network Model, here are some from Stackoverflow and the book **Introduction to Neural Networks for Java (second edition)** by Jeff Heaton:
 
+> For Hidden Neurons:"
+    "1. The number of hidden neurons should be between the size of the input layer and the size of the output layer.
+    2. The number of hidden neurons should be 2/3 the size of the input layer, plus the size of the output layer.
+    3. The number of hidden neurons should be less than twice the size of the input layer."
+Since we have 30 input nodes (30 features/variables) and 2 output nodes (2 Classes with variable **diagnosis**), 15 hidden neurons sound like the number to go. 
+  
+> For Hidden Layers: "Problems that require two hidden layers are rarely encountered. However, neural networks with two hidden layers can represent functions with any kind of shape. There is currently no theoretical reason to use neural networks with any more than two hidden layers. In fact, for many practical problems, there is no reason to use any more than one hidden layer." Thus we can use 1 layers and later see if 2 layers still be relevant compared to our validation and test set.
+
+<center>
+
+```{r Neural Network - Model 1}
+
+# Load library
+library(neuralnet)
+library(nnet)
+library(devtools)
+
+# Fit neural network with 3 hidden layers
+Neural_2 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=15, linear.output = FALSE)
+
+# Plot Neural Network Model 1
+plot(Neural_2)
+
+```
+
+</center>
+
+>Comments: 
 
 ## Discriminant Analysis
 
@@ -1158,6 +1208,10 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 [VIF Inflation Error](https://www.statology.org/variance-inflation-factor-r/)
 
 [Neural Network Models in R](https://www.datacamp.com/tutorial/neural-network-models-r)
+
+[How to choose the number of hidden layers and nodes in a feedforward neural network?](https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw)
+
+[Introduction to Neural Networks for Java (second edition) by Jeff Heaton - Google Books](https://books.google.it/books?id=Swlcw7M4uD8C&pg=PA158&lpg=PA158&dq=Introduction%20to%20Neural%20Networks%20for%20Java,%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&source=bl&ots=TJx9QaeWw6&sig=gZqg9e73K1oCqWBxmcBWAf2pbrE&hl=it&sa=X&ved=0CCUQ6AEwAGoVChMIudnOsJr1yAIVwjkaCh3AAgnU#v=onepage&q=Introduction%20to%20Neural%20Networks%20for%20Java%2C%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&f=false)
 
 
 
