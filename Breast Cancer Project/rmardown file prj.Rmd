@@ -311,7 +311,11 @@ summary(Logistic_Model_After)
 
 > Comments: Eventhough we did a Lasso Regression, we can see that our standard Logistic Regression fails to converge with this selection of variables. This is could be due to the number of variables, 23 in our case and the low number of observations. Now it's the time to check our VIF, since Multicolinearity could be our main source of problem.
 
-### Test For Multicolinearity in Our Dataset using VIF - First Iteration
+### VIF 
+
+> We need to compute multiple stage when removing our multicolinear Variables, let's see when we don't have anymore problem of multicolinearity.
+
+#### Test For Multicolinearity in Our Dataset using VIF - First Iteration
 
 ```{r VIF for Logistic Regression - 1}
 
@@ -335,7 +339,7 @@ vif_values
 
 > Comments: We can see that most of our variables have multicolinearity (with VIF over 5). We need to remove variables with the highest VIF first. We can start by removing at least 8 variables: radius_worst, area_worst, concavity_worst, concavity_mean, concavity_worst, fractal_dimension_se, concavity_se and concave points_mean. 
 
-### Logistic Regression with VIF removing 8 variables - First Iteration
+#### Logistic Regression with VIF removing 8 variables - First Iteration
 
 ```{r Logistic Regression after VIF - 1}
 
@@ -354,7 +358,7 @@ summary(Logistic_Model_After_VIF1)
 > Comments: Even after removing 8 variables, our model still suffer from Convergence error, let's check our VIF again.
 
 
-### Test For Multicolinearity in Our Dataset using VIF - Second Iteration
+#### Test For Multicolinearity in Our Dataset using VIF - Second Iteration
 
 ```{r VIF for Logistic Regression - 2}
 
@@ -377,7 +381,7 @@ vif_values_2
 
 > Comments: We can still see high VIF values in our variables, let's remove 6 variables again: radius_se, perimeter_se, area_se, compactness_mean, texture_se and texture_worst.
 
-### Logistic Regression with VIF removing 6 variables - Second Iteration
+#### Logistic Regression with VIF removing 6 variables - Second Iteration
 
 ```{r Logistic Regression after VIF - 2}
 
@@ -394,7 +398,7 @@ summary(Logistic_Model_After_VIF2)
 
 > Comments: Now we can see that our Regression Model Converge, let's compute a third iteration of VIF to check the multicolinearity. 
 
-### Test For Multicolinearity in Our Dataset using VIF - Third Iteration
+#### Test For Multicolinearity in Our Dataset using VIF - Third Iteration
 
 ```{r VIF for Logistic Regression - 3}
 
@@ -417,7 +421,7 @@ vif_values_3
 
 > Comments: We are indeed improved our VIF model by excluding a lot of multicolinear variables, we can still see 3 variables suffering from a VIF higher than 5, let's remove **fractal_dimension_mean** and see if it improves everything.
 
-### Logistic Regression with VIF removing 6 variables - Third Iteration
+#### Logistic Regression with VIF removing 6 variables - Third Iteration
 
 ```{r Logistic Regression after VIF - 3}
 
@@ -434,7 +438,7 @@ summary(Logistic_Model_After_VIF3)
 
 > Comments: Now we can see that our Regression Model Converge, let's compute a fourth iteration of VIF to check the multicolinearity. 
 
-### Test For Multicolinearity in Our Dataset using VIF - Fourth Iteration
+#### Test For Multicolinearity in Our Dataset using VIF - Fourth Iteration
 
 ```{r VIF for Logistic Regression - 4}
 
@@ -457,7 +461,7 @@ vif_values_4
 
 > Comments: We can see that our highest VIF values come from **symmetry_worst**, we can remove it and check if our model is now free of multicolinearity issues.
 
-### Logistic Regression with VIF removing 6 variables - Fifth Iteration (Last)
+#### Logistic Regression with VIF removing 6 variables - Fifth Iteration (Last)
 
 ```{r Logistic Regression after VIF - 5}
 
@@ -474,7 +478,7 @@ summary(Logistic_Model_After_VIF4)
 
 > Comments: We improved some significance level removing this high VIF variable.
 
-### Test For Multicolinearity in Our Dataset using VIF - Fifth Iteration (Last)
+#### Test For Multicolinearity in Our Dataset using VIF - Fifth Iteration (Last)
 
 ```{r VIF for Logistic Regression - 5}
 
@@ -498,9 +502,9 @@ vif_values_5
 > Comments: Now we can see that all our selected variables are not subject to multicolinearity anymore. Let's use this model to compute some predictions.
 
 
-### Logistic Lasso Regression - Predictions and Confusion Matrix
+#### Logistic Lasso Regression - Predictions and Confusion Matrix on Validation
 
-```{r LR Predictions and Confusion Matrix}
+```{r LR Predictions and Confusion Matrix Validation}
 
 # Set Seed 
 set.seed(1)
@@ -529,7 +533,7 @@ draw_confusion_matrix_Logistic_Lasso <- function(cm) {
   layout(matrix(c(1,1,2)))
   par(mar=c(2,2,2,2))
   plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
-  title('CONFUSION MATRIX for Logistic Lasso Regression', cex.main=2)
+  title('CONFUSION MATRIX for Logistic Regression - Validation', cex.main=2)
 
   # create the matrix 
   rect(150, 430, 240, 370, col='#1c6155')
@@ -575,9 +579,121 @@ draw_confusion_matrix_Logistic_Lasso(Confusion_Matrix_Logistic_Lasso)
 
 ```
 
+> Comments: 
+
+#### ROC Curve of the Logistic Regression - Validation
+
+```{r ROC Curve Lasso Validation}
+
+# Load ROCR Package
+library(ROCR)
+
+# Plot our ROC Curve
+pr <- ROCR::prediction(Logistic_Lasso_Predictions, Validation_Logistic$diagnosis)
+prf <- ROCR::performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf, main="ROC for Validation Set")
+abline(a = 0, b = 1) 
+
+```
+
+> Comments: 
+
+#### Logistic Lasso Regression - Predictions and Confusion Matrix on Test
+
+```{r LR Predictions and Confusion Matrix Test}
+
+# Set Seed 
+set.seed(1)
+
+# Predictions with LR
+Logistic_Lasso_Predictions_2 <- predict(Logistic_Model_After_VIF4, Test[,c("area_mean", "smoothness_mean", "symmetry_mean", "smoothness_se", "concave points_se", "symmetry_se", "concave points_worst", "fractal_dimension_worst")], type = "response")
+
+# Rounding Predictions - 0.5 Threshold
+Logistic_Lasso_Predictions_Dummy_2 <- round(Logistic_Lasso_Predictions_2)
+
+# As Numeric
+Logistic_Lasso_Predictions_Dummy_2 <- as.numeric(Logistic_Lasso_Predictions_Dummy_2)
+
+# Check rounding in a Dataframe
+DF_Logistic_Lasso_Predictions_2 <- cbind(Logistic_Lasso_Predictions_2, Logistic_Lasso_Predictions_Dummy_2)
+
+# As Factor
+Logistic_Lasso_Predictions_Dummy_2 <- as.factor(Logistic_Lasso_Predictions_Dummy_2)
+
+# Confusion Matrix
+Confusion_Matrix_Logistic_Lasso_2 <- confusionMatrix(data = Logistic_Lasso_Predictions_Dummy_2, reference = Test$diagnosis)
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Logistic_Lasso_2 <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Logistic Regression - Test', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Logistic_Lasso_2(Confusion_Matrix_Logistic_Lasso_2)
+
+```
+
+> Comments: 
+
+#### ROC Curve of the Logistic Regression - Test
+
+```{r ROC Curve Lasso Test}
+
+# Load ROCR Package
+library(ROCR)
+
+# Plot our ROC Curve
+pr2 <- ROCR::prediction(Logistic_Lasso_Predictions_2, Test$diagnosis)
+prf2 <- ROCR::performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf2, main="ROC for Test Set")
+abline(a = 0, b = 1) 
+
+```
+
 > Comments:
-
-
+ 
 ## Classification Tree
 
 ```{r}
@@ -745,6 +861,15 @@ draw_confusion_matrix(KNN1.conf.mat)
 ```
 
 ## Neural Networks
+
+
+
+### Fitting Neural Networks 
+
+
+
+
+
 
 ## Discriminant Analysis
 
@@ -990,5 +1115,11 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 [ROC Curve](https://www.digitalocean.com/community/tutorials/plot-roc-curve-r-programming)
 
+[How to create a ROC curve in R](https://www.datatechnotes.com/2019/03/how-to-create-roc-curve-in-r.html)
+
 [VIF Inflation Error](https://www.statology.org/variance-inflation-factor-r/)
+
+[Neural Network Models in R](https://www.datacamp.com/tutorial/neural-network-models-r)
+
+
 
