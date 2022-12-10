@@ -101,14 +101,19 @@ draw_confusion_matrix <- function(cm) {
 
 ## Structure of Data
 
-```{r Data reading}
+```{r Data Loading}
 
 ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
+
+```
+
+```{r Data Summary}
 
 # printing sumamry
 print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = FALSE, html = TRUE, style ='grid', silent = TRUE), max.tbl.height = 300, width = 80, method = "render")
 
 ```
+
 
 ## Missing values
 
@@ -868,6 +873,10 @@ draw_confusion_matrix(KNN1.conf.mat)
 Training_NN <- Training
 Validation_NN <- Validation
 
+# Make Sure to be as Dataframe
+Training_NN <- as.data.frame(Training_NN)
+Validation_NN <- as.data.frame(Validation_NN)
+
 # Remove the "ID" Variable
 Training_NN <- Training_NN[,-c("id")]
 Validation_NN <- Validation_NN[,-c("id")]
@@ -876,14 +885,26 @@ Validation_NN <- Validation_NN[,-c("id")]
 
 ### Fitting Neural Networks 
 
-```{r}
+```{r Neural Network - Model 1}
 
 # Load library
-require(neuralnet)
+library(neuralnet)
+library(nnet)
 
-# Fit neural network
-Neural_1 <- neuralnet(diagnosis ~.,data=Training_NN, hidden=3, act.fct = "logistic",
-                linear.output = FALSE)
+# Preprocess Data
+Norm_NN <- preProcess(Training_NN, method = c("center", "scale"))
+Training_NN_Preprocess <- predict(Norm_NN, Training_NN)
+Validation_NN_Preprocess <- predict(Norm_NN, Validation_NN)
+
+# Factor Diagnosis Variable
+Training_NN_Preprocess$diagnosis <- factor(Training_NN_Preprocess$diagnosis)
+Validation_NN_Preprocess$diagnosis <- factor(Validation_NN_Preprocess$diagnosis)
+
+# Fit neural network with 3 hidden layers
+Neural_1 <- neuralnet(Training_NN_Preprocess ~ ., data = Training_NN_Preprocess, hidden=3, linear.output = FALSE)
+
+
+
 
 ```
 
