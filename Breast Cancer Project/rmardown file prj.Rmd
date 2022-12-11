@@ -2012,6 +2012,7 @@ DT::datatable(round(Clusters_Malign_1_Centers,5), caption = "Centroid from Model
 
 ```
 
+> Comments: 
 
 
 #### Model 2 with 2 Clusters - Plot
@@ -2041,7 +2042,7 @@ DT::datatable(round(Clusters_Malign_2_Centers,5), caption = "Centroid from Model
 
 ```
 
-
+> Comments: 
 
 # Conclusion
 
