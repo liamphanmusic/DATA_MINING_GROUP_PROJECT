@@ -1790,10 +1790,6 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 ## Cluster Analysis
 
-This Cluster Analysis will be done in 2 parts, first with Hierarchical Clustering and then with K-means Clustering. 
-
-### Hierarchical Clustering
-
 ### K-Means Clustering
 
 ```{r K-Means Clustering Preprocess}
