@@ -42,6 +42,7 @@ library(dplyr)
 library(klaR) # partimat
 library(forecast)
 library(pROC)
+library(tibble)
 
 ```
 
@@ -1525,6 +1526,22 @@ First data prep before model -> center / scale,
 
 ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
 ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
+
+# without outliers
+ORIGINAL.DA.WOO <- tibble::tibble(ORIGINAL.DA)
+
+library(tidyverse)
+
+ORIGINAL.DA.WOO <- ORIGINAL.DA.WOO %>%
+  dplyr::select(-c(diagnosis)) %>%
+  gather(key, value) %>%
+  group_by(key) %>%
+  mutate(q95 = quantile(value, 0.95), row = row_number()) %>%
+  filter(value <= q95) %>%
+  dplyr::select(-q95) %>%
+  spread(key, value) %>%
+  dplyr::select(-row)
+
 
 # partition
 inds <- partition(ORIGINAL.DA$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
