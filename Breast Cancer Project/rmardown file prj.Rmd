@@ -233,6 +233,8 @@ Validation_Logistic <- Validation_Logistic[,-c("id")]
 
 ```{r Fit Logistic Regression}
 
+set.seed(1)
+
 # Fit The Logistic Regression Model
 Logistic_Model_1 <- glm(diagnosis ~ radius_mean + texture_mean + perimeter_mean + area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + compactness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se, family=binomial(link='logit'), data=Training_Logistic)
 
@@ -287,6 +289,8 @@ plot(cv_model)
 
 ```{r Best Lambda for Lasso}
 
+set.seed(1)
+
 # Use optimal lambda value and alpha = 1 is for using Lasso Method
 Logistic_Lasso_Optimal <- glmnet(x_lasso, y_lasso, alpha = 1, lambda = best_lambda)
 
@@ -303,6 +307,8 @@ Logistic_Lasso_Optimal$beta
 ### Logistic Regression using Variables from Lasso Selection
 
 ```{r Logistic Regression after Lasso}
+
+set.seed(1)
 
 # Fit The Logistic Regression Model with only selected variables from Lasso
 Logistic_Model_After <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + radius_worst + texture_worst + area_worst + concavity_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
@@ -325,6 +331,8 @@ summary(Logistic_Model_After)
 
 ```{r VIF for Logistic Regression - 1}
 
+set.seed(1)
+
 # Load the car library
 library(car)
 
@@ -345,10 +353,11 @@ vif_values
 
 > Comments: We can see that most of our variables have multicolinearity (with VIF over 5). We need to remove variables with the highest VIF first. We can start by removing at least 8 variables: radius_worst, area_worst, concavity_worst, concavity_mean, concavity_worst, fractal_dimension_se, concavity_se and concave points_mean. 
 
-#### Logistic Regression with VIF removing 8 variables - First Iteration
+#### Logistic Regression with VIF removing 8 variables - Second Iteration
 
-```{r Logistic Regression after VIF - 1}
+```{r Logistic Regression after VIF - 2}
 
+set.seed(1)
 
 # Fit The Logistic Regression Model
 Logistic_Model_After_VIF1 <- glm(diagnosis ~  area_mean + smoothness_mean + compactness_mean + symmetry_mean + fractal_dimension_mean + radius_se + texture_se + perimeter_se + area_se + smoothness_se + `concave points_se` + symmetry_se + texture_worst + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
@@ -367,6 +376,8 @@ summary(Logistic_Model_After_VIF1)
 #### Test For Multicolinearity in Our Dataset using VIF - Second Iteration
 
 ```{r VIF for Logistic Regression - 2}
+
+set.seed(1)
 
 # Load the car library
 library(car)
@@ -387,9 +398,11 @@ vif_values_2
 
 > Comments: We can still see high VIF values in our variables, let's remove 6 variables again: radius_se, perimeter_se, area_se, compactness_mean, texture_se and texture_worst.
 
-#### Logistic Regression with VIF removing 6 variables - Second Iteration
+#### Logistic Regression with VIF removing 6 variables - Third Iteration
 
-```{r Logistic Regression after VIF - 2}
+```{r Logistic Regression after VIF - 3}
+
+set.seed(1)
 
 # Fit The Logistic Regression Model
 Logistic_Model_After_VIF2 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + fractal_dimension_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
@@ -407,6 +420,8 @@ summary(Logistic_Model_After_VIF2)
 #### Test For Multicolinearity in Our Dataset using VIF - Third Iteration
 
 ```{r VIF for Logistic Regression - 3}
+
+set.seed(1)
 
 # Load the car library
 library(car)
@@ -427,9 +442,11 @@ vif_values_3
 
 > Comments: We are indeed improved our VIF model by excluding a lot of multicolinear variables, we can still see 3 variables suffering from a VIF higher than 5, let's remove **fractal_dimension_mean** and see if it improves everything.
 
-#### Logistic Regression with VIF removing 6 variables - Third Iteration
+#### Logistic Regression with VIF removing 1 variable - Fourth Iteration
 
-```{r Logistic Regression after VIF - 3}
+```{r Logistic Regression after VIF - 4}
+
+set.seed(1)
 
 # Fit The Logistic Regression Model with only selected variables from Lasso
 Logistic_Model_After_VIF3 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst`+ symmetry_worst + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
@@ -447,6 +464,8 @@ summary(Logistic_Model_After_VIF3)
 #### Test For Multicolinearity in Our Dataset using VIF - Fourth Iteration
 
 ```{r VIF for Logistic Regression - 4}
+
+set.seed(1)
 
 # Load the car library
 library(car)
@@ -467,9 +486,11 @@ vif_values_4
 
 > Comments: We can see that our highest VIF values come from **symmetry_worst**, we can remove it and check if our model is now free of multicolinearity issues.
 
-#### Logistic Regression with VIF removing 6 variables - Fifth Iteration (Last)
+#### Logistic Regression with VIF removing 1 variable - Fifth Iteration (Last)
 
 ```{r Logistic Regression after VIF - 5}
+
+set.seed(1)
 
 # Fit The Logistic Regression Model with only selected variables from Lasso
 Logistic_Model_After_VIF4 <- glm(diagnosis ~  area_mean + smoothness_mean + symmetry_mean + smoothness_se + `concave points_se` + symmetry_se + `concave points_worst` + fractal_dimension_worst , family=binomial(link='logit'), data=Training_Logistic)
@@ -488,6 +509,8 @@ summary(Logistic_Model_After_VIF4)
 
 ```{r VIF for Logistic Regression - 5}
 
+set.seed(1)
+
 # Load the car library
 library(car)
 
@@ -495,7 +518,7 @@ library(car)
 vif_values_5<- vif(Logistic_Model_After_VIF4)
 
 # Create horizontal bar chart to display each VIF value
-barplot(vif_values_5, main = "VIF Values - Fourth Iteration", horiz = FALSE, col = "steelblue", las=2)
+barplot(vif_values_5, main = "VIF Values - Fifth Iteration", horiz = FALSE, col = "steelblue", las=2)
 
 # Add vertical line at 5
 abline(h = 5, lwd = 3, lty = 2)
@@ -592,6 +615,8 @@ draw_confusion_matrix_Logistic_Lasso(Confusion_Matrix_Logistic_Lasso)
 
 ```{r ROC Curve Lasso Validation}
 
+set.seed(1)
+
 # Load ROCR Package
 library(ROCR)
 
@@ -687,6 +712,8 @@ draw_confusion_matrix_Logistic_Lasso_2(Confusion_Matrix_Logistic_Lasso_2)
 #### ROC Curve of the Logistic Regression - Test
 
 ```{r ROC Curve Lasso Test}
+
+set.seed(1)
 
 # Load ROCR Package
 library(ROCR)
@@ -919,7 +946,7 @@ plot(Neural_1)
 </center>
 
 
-### Predictions and Confusion Matrix - Neural Model 1
+#### Predictions and Confusion Matrix - Neural Model 1
 
 #### Confusion Matrix with Validation
 
@@ -1081,17 +1108,18 @@ draw_confusion_matrix_Neural_1_Test(Confusion_Matrix_Neural_1_Test)
 
 > Comments: Better Result compared to Model 3 in Test, but low Specifity. 
 
-### Advanced Neural Network with Optimal Number of Hidden Nodes - Model 2
+### Advanced Neural Network with 1 Hidden Layers of 15 Hidden Nodes - Model 2
 
-> Some rules of thumb can help in deciding the structure of our Neural Network Model, here are some from Stackoverflow and the book **Introduction to Neural Networks for Java (second edition)** by Jeff Heaton:
+Some rules of thumb can help in deciding the structure of our Neural Network Model, here are some from Stackoverflow and the book **Introduction to Neural Networks for Java (second edition)** by Jeff Heaton:
 
-> For Hidden Neurons:"
+For **Hidden Neurons**:
     "1. The number of hidden neurons should be between the size of the input layer and the size of the output layer.
     2. The number of hidden neurons should be 2/3 the size of the input layer, plus the size of the output layer.
     3. The number of hidden neurons should be less than twice the size of the input layer."
+
 Since we have 30 input nodes (30 features/variables) and 2 output nodes (2 Classes with variable **diagnosis**), 15 hidden neurons sound like the number to go. 
   
-> For Hidden Layers: "Problems that require two hidden layers are rarely encountered. However, neural networks with two hidden layers can represent functions with any kind of shape. There is currently no theoretical reason to use neural networks with any more than two hidden layers. In fact, for many practical problems, there is no reason to use any more than one hidden layer." Thus we can use 1 layers and later see if 2 layers still be relevant compared to our validation and test set.
+For **Hidden Layers**: "Problems that require two hidden layers are rarely encountered. However, neural networks with two hidden layers can represent functions with any kind of shape. There is currently no theoretical reason to use neural networks with any more than two hidden layers. In fact, for many practical problems, there is no reason to use any more than one hidden layer." Thus we can use 1 layers and later see if 2 layers still be relevant compared to our validation and test set.
 
 <center>
 
@@ -1319,7 +1347,7 @@ abline(a = 0, b = 1)
 ```
 
 
-### Advanced Neural Network with 2 Hidden Layers and 15 Hidden Nodes - Model 3
+### Advanced Neural Network with 2 Hidden Layers of 15 Hidden Nodes - Model 3
 
 <center>
 
@@ -1762,11 +1790,47 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 ## Cluster Analysis
 
-> This Cluster Analysis will be done in 2 parts, first with Hierarchical Clustering and then with K-means Clustering. 
+This Cluster Analysis will be done in 2 parts, first with Hierarchical Clustering and then with K-means Clustering. 
 
 ### Hierarchical Clustering
 
 ### K-Means Clustering
+
+```{r K-Means Clustering Preprocess}
+
+# Duplicate Original to a Cluster Dataframe
+KClusteringDF <- ORIGINAL
+
+# Make Sure to be as Dataframe
+KClusteringDF <- data.frame(KClusteringDF)
+
+# Remove the "ID" Variable
+KClusteringDF <- KClusteringDF[,-1]
+
+# Preprocess Data
+Norm_Kmeans <- preProcess(KClusteringDF, method = c("center", "scale"))
+KClusteringDF_Preprocess <- predict(Norm_Kmeans, KClusteringDF)
+
+# Separate Benign and Malign into 2 Datasets
+Benign_ClusterDF <- KClusteringDF_Preprocess[diagnosis == 0,]
+Malign_ClusterDF <- KClusteringDF_Preprocess[diagnosis == 1,]
+
+```
+
+```{r K-means Clustering}
+
+
+
+
+
+
+
+
+
+
+```
+
+
 
 
 
@@ -1797,6 +1861,10 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 [Introduction to Neural Networks for Java (second edition) by Jeff Heaton - Google Books](https://books.google.it/books?id=Swlcw7M4uD8C&pg=PA158&lpg=PA158&dq=Introduction%20to%20Neural%20Networks%20for%20Java,%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&source=bl&ots=TJx9QaeWw6&sig=gZqg9e73K1oCqWBxmcBWAf2pbrE&hl=it&sa=X&ved=0CCUQ6AEwAGoVChMIudnOsJr1yAIVwjkaCh3AAgnU#v=onepage&q=Introduction%20to%20Neural%20Networks%20for%20Java%2C%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&f=false)
 
 [Cluster Analysis in R](https://www.r-bloggers.com/2021/04/cluster-analysis-in-r/)
+
+[Do we need to set training set and testing set for clustering?](https://stats.stackexchange.com/questions/268934/do-we-need-to-set-training-set-and-testing-set-for-clustering)
+
+[K-means Clustering: Algorithm, Applications, Evaluation Methods, and Drawbacks](https://towardsdatascience.com/k-means-clustering-algorithm-applications-evaluation-methods-and-drawbacks-aa03e644b48a)
 
 
 
