@@ -2010,7 +2010,9 @@ fviz_cluster(Cluster_Malign_1, data = Malign_ClusterDF[,-1], main="Cluster Model
 
 ```{r Model 2 Centroid - 3 Clusters}
 
-Cluster_Malign_2$centers 
+Clusters_Malign_1_Centers <- Cluster_Malign_1$centers
+
+DT::datatable(round(Clusters_Malign_1_Centers,5), caption = "Centroid from Model 2 - 3 Clusters")
 
 ```
 
@@ -2032,6 +2034,16 @@ fviz_cluster(Cluster_Malign_2, data = Malign_ClusterDF[,-1], main="Cluster Model
 </center>
 
 > Comments: 
+
+### Centroid of Model 2 with 2 Clusters
+
+```{r Model 2 Centroid - 2 Clusters}
+
+Clusters_Malign_2_Centers <- Cluster_Malign_2$centers
+
+DT::datatable(round(Clusters_Malign_2_Centers,5), caption = "Centroid from Model 2 - 2 Clusters")
+
+```
 
 
 
