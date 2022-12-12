@@ -16,9 +16,9 @@ rm(list = ls())
 
 ```{r Libraries and functions, message=FALSE, warning= FALSE}
 
-library(data.table)
-library(summarytools)
-library(ggplot2)
+library(data.table) # Data table Tools
+library(summarytools) # Summary Tools
+library(ggplot2) # Plot Visualization Tool
 library(data.table) # fread
 library(rbokeh) # visualization of data
 library(summarytools) # ORIGINALSummary
@@ -36,15 +36,22 @@ library(randomForest) # randomForest
 library(cluster) # hierarchical clustering
 library(knitr) # kable
 library(kableExtra) # kbl
-library(ggplot2) # ggplot
 library(MASS) # lda, qda, etc.
-library(dplyr)
+library(dplyr) # Data Wrangling Tools
 library(klaR) # partimat
 library(forecast)
 library(pROC)
 library(tibble)
 library(mda) # mda
-
+library(RColorBrewer) # Color Palette
+library(tidyverse) # useful Dataframe tools
+library(glmnet) # Logistic Lasso Regression
+library(car) # VIF 
+library(ROCR) # ROC Curve
+library(neuralnet) # Neural Network
+library(nnet) # Neural network 
+library(factoextra) # K-Means Clustering
+library(ggpubr) # ggplot addons
 
 ```
 
@@ -139,22 +146,17 @@ ggplot(ORIGINAL.boxplot, aes(x = diagnosis, y = value)) +
 
 ## Correlation
 
-```{r corrplot, fig.width=15,fig.height=15}
+```{r corrplot}
+
+# Color Palette
+library("RColorBrewer")
 
 # select numeric variables
-ORIGINAL_is.numeric <- ORIGINAL %>% 
-  select_if(is.numeric)
+Corr_Data <- na.omit(ORIGINAL[,-c(1,2)])
+Corr_plot <- cor(Corr_Data)
 
-ORIGINAL_heatmap <- round(cor(ORIGINAL_is.numeric, use = "complete.obs"), 1)
-ORIGINAL_heatmap <- melt(ORIGINAL_heatmap)
-
-#  corrplot
-ggplot(ORIGINAL_heatmap, aes(x=Var1, y=Var2, fill=value)) +
-  geom_tile()+
-  scale_fill_gradient(low = "pink", high = "dark red")+
-  labs(title="Correlation Heatmap",x="", y="")+
-  geom_text(aes(x=Var1, y=Var2, label=value), color="white")+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), plot.title = element_text(hjust=0.5))
+# Correlations plotting
+corrplot(Corr_plot, method = "color", col=brewer.pal(n=8, name="BuGn"),tl.col="black",tl.srt=45, addCoef.col = "black",number.cex = 1)
 
 ```
 
@@ -223,6 +225,8 @@ Type of Logistic Regression:
 
 ```{r Dataset Duplicata}
 
+set.seed(1)
+
 # Duplicate the Training and Validation Set
 Training_Logistic <- Training
 Validation_Logistic <- Validation
@@ -246,6 +250,7 @@ options(scipen=999)
 
 # Model Summary
 summary(Logistic_Model_1)
+
 ```
 
 > Comments: Trying to fit every variable in our logistic regression showed an convergence error when there is complete separation. To deal with this we should use a penalized model because of too many variables included in our model compared to the number of observations. (See **[Convergence Error in Logistic Regression]** and **[Penalized Logistic Regression Essentials in R: Ridge, Lasso and Elastic Net]** in References) 
@@ -1320,6 +1325,8 @@ draw_confusion_matrix_Neural_2_Test(Confusion_Matrix_Neural_2_Test)
 
 ```{r ROC Curve NN Validation}
 
+set.seed(1)
+
 # Load ROCR Package
 library(ROCR)
 
@@ -1337,6 +1344,8 @@ abline(a = 0, b = 1)
 ##### On Test
 
 ```{r ROC Curve NN Test}
+
+set.seed(1)
 
 # Load ROCR Package
 library(ROCR)
@@ -2246,15 +2255,12 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 
 
 
-c
-
-
-
+> Comments:
 
 
 # Conclusion
 
-# References
+# References 
 
 [Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
 
@@ -2274,7 +2280,7 @@ c
 
 [How to choose the number of hidden layers and nodes in a feedforward neural network?](https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw)
 
-[Introduction to Neural Networks for Java (second edition) by Jeff Heaton - Google Books](https://books.google.it/books?id=Swlcw7M4uD8C&pg=PA158&lpg=PA158&dq=Introduction%20to%20Neural%20Networks%20for%20Java,%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&source=bl&ots=TJx9QaeWw6&sig=gZqg9e73K1oCqWBxmcBWAf2pbrE&hl=it&sa=X&ved=0CCUQ6AEwAGoVChMIudnOsJr1yAIVwjkaCh3AAgnU#v=onepage&q=Introduction%20to%20Neural%20Networks%20for%20Java%2C%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&f=false)
+[Introduction to Neural Networks for Java (second edition) by Jeff Heaton - Google Books](https://books.google.it/books?id=Swlcw7M4uD8C&lpg=PA158&dq=Introduction%20to%20Neural%20Networks%20for%20Java%2C%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&hl=it&pg=PA158#v=onepage&q=Introduction%20to%20Neural%20Networks%20for%20Java,%20Second%20Edition%20The%20Number%20of%20Hidden%20Layers&f=false)
 
 [Cluster Analysis in R](https://www.r-bloggers.com/2021/04/cluster-analysis-in-r/)
 
