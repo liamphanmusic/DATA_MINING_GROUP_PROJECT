@@ -43,6 +43,8 @@ library(klaR) # partimat
 library(forecast)
 library(pROC)
 library(tibble)
+library(mda) # mda
+
 
 ```
 
@@ -1551,24 +1553,25 @@ First I just run a discriminant analysis.
 First data prep before model -> center / scale, 
 
 ```{r DA data prep}
+set.seed(1)
 
 ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
 ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
 
 # without outliers
-ORIGINAL.DA.WOO <- tibble::tibble(ORIGINAL.DA)
-
-library(tidyverse)
-
-ORIGINAL.DA.WOO <- ORIGINAL.DA.WOO %>%
-  dplyr::select(-c(diagnosis)) %>%
-  gather(key, value) %>%
-  group_by(key) %>%
-  mutate(q95 = quantile(value, 0.95), row = row_number()) %>%
-  filter(value <= q95) %>%
-  dplyr::select(-q95) %>%
-  spread(key, value) %>%
-  dplyr::select(-row)
+# ORIGINAL.DA.WOO <- tibble::tibble(ORIGINAL.DA)
+# 
+# library(tidyverse)
+# 
+# ORIGINAL.DA.WOO <- ORIGINAL.DA.WOO %>%
+#   dplyr::select(-c(diagnosis)) %>%
+#   gather(key, value) %>%
+#   group_by(key) %>%
+#   mutate(q95 = quantile(value, 0.95), row = row_number()) %>%
+#   filter(value <= q95) %>%
+#   dplyr::select(-q95) %>%
+#   spread(key, value) %>%
+#   dplyr::select(-row)
 
 
 # partition
@@ -1582,12 +1585,12 @@ norm.value <- preProcess(ORIGINAL.DA.train, method = c("center", "scale"))
 ORIGINAL.DA.train <- predict(norm.value, ORIGINAL.DA.train)
 ORIGINAL.DA.valid <- predict(norm.value, ORIGINAL.DA.valid)
 ORIGINAL.DA.test <- predict(norm.value, ORIGINAL.DA.test)
-
 ```
 
 try with lda
 
 ```{r first DA}
+set.seed(1)
 
 # Fit the model
 DA1 <- lda(diagnosis~., data = ORIGINAL.DA.train)
@@ -1615,12 +1618,12 @@ ylab = "Mean Response", main = "Decile-wise lift chart")
 # Evaluating LDA
 # doesn't work
 # klaR::partimat(diagnosis~., data = ORIGINAL.DA.train, method="lda", plot.matrix = FALSE)
-
 ```
 
 If bad -> Correlation in data -> qda continuing with it. If not continue with lda
 
 ```{r qda}
+set.seed(1)
 
 # Fit the model
 DA2 <- qda(diagnosis~., data = ORIGINAL.DA.train)
@@ -1644,39 +1647,96 @@ prob <- as.numeric(DA2.pred.valid.prob)
 DA2.gain <- gains(actual, prob)
 barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
-
 ```
 
 Doesn't get better... lets continue with lda
 
-We see different proportions -> need to refit model with cost to proportion
+We see different proportions -> need to refit model with cost to proportion 
 
 ```{r lda different proportions}
+prior = DA1$prior
 
 # Fit the model
-DA3 <- lda(diagnosis~., data = ORIGINAL.DA.train)
+DA3 <- lda(diagnosis~., data = ORIGINAL.DA.train, prior = prior)
 
 # Make predictions
-predictions <- predict(DA2, ORIGINAL.DA.valid)
+predictions <- predict(DA3, ORIGINAL.DA.valid)
 
 # predictions prob
-DA2.pred.valid.prob <- predictions$posterior[,2]
+DA3.pred.valid.prob <- predictions$posterior[,2]
 
 # predictions response 
-DA2.pred.valid.resp <- factor(predictions$class)
+DA3.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
-DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA2.conf.mat)
+DA3.conf.mat <- confusionMatrix(DA3.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA3.conf.mat)
 
 # Lift chart
 actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA2.pred.valid.prob)
-DA2.gain <- gains(actual, prob)
-barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
+prob <- as.numeric(DA3.pred.valid.prob)
+DA3.gain <- gains(actual, prob)
+barplot(DA3.gain$mean.resp / mean(actual), names.arg = DA3.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
 
 ```
+Gives back same model as without prior -> function already does it.
+
+Try mda
+
+```{r mda}
+set.seed(1)
+
+# Fit the model
+DA4 <- mda(diagnosis~., data = ORIGINAL.DA.train)
+
+# predictions prob
+DA4.pred.valid.prob <- predict(DA4, ORIGINAL.DA.valid, type = "posterior")[,2]
+
+# predictions response 
+DA4.pred.valid.resp <- factor(ifelse(DA4.pred.valid.prob > 0.5, 1, 0))
+
+# confusion matrix
+DA4.conf.mat <- confusionMatrix(DA4.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA4.conf.mat)
+
+# Lift chart
+actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
+prob <- as.numeric(DA4.pred.valid.prob)
+DA4.gain <- gains(actual, prob)
+barplot(DA4.gain$mean.resp / mean(actual), names.arg = DA4.gain$depth, xlab = "Percentile",
+ylab = "Mean Response", main = "Decile-wise lift chart")
+```
+
+try fda
+
+```{r fda}
+set.seed(1)
+
+# Fit the model
+DA5 <- fda(diagnosis~., data = ORIGINAL.DA.train)
+
+# predictions prob
+DA5.pred.valid.prob <- predict(DA5, ORIGINAL.DA.valid, type = "posterior")[,2]
+
+# predictions response 
+DA5.pred.valid.resp <- factor(ifelse(DA5.pred.valid.prob > 0.5, 1, 0))
+
+# confusion matrix
+DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA5.conf.mat)
+
+# Lift chart
+actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
+prob <- as.numeric(DA5.pred.valid.prob)
+DA5.gain <- gains(actual, prob)
+barplot(DA5.gain$mean.resp / mean(actual), names.arg = DA5.gain$depth, xlab = "Percentile",
+ylab = "Mean Response", main = "Decile-wise lift chart")
+```
+highest sensitivity is for qda --> sensitivity is important in this case. 
+
+
+
 
 we know missclassification bad -> cost for misclassification model
 
@@ -1690,26 +1750,6 @@ Some predictors unimportant -> remove some
 
 5th model
 
-```{r data prep for DA}
-
-# remove outliers
-# use a different filter than boxplot?
-# https://statsandr.com/blog/outliers-detection-in-r/
-
-ORIGINAL.DA <- select(ORIGINAL.DA, -c(id))
-
-
-
-# normality -> log transform
-
-# correlation between groups
-
-```
-
-
-```{r base model}
-
-```
 
 ## Ensemble Methods
 
