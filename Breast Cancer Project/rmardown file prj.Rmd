@@ -2212,7 +2212,7 @@ Cluster 1 with **T2** could potential lead us to such Stages:
 [Breast Cancer: Stages - Cancer.Net](https://www.cancer.net/cancer-types/breast-cancer/stages)
 
 
-#####  Proportions of T1 and T2 (Hypothesis) 
+#####  Proportions of T1 and T2 - Pie Chart
 
 ```{r Staging Proportions of T1 and T2}
 
@@ -2234,14 +2234,14 @@ Pie_T1_T2 <- data.frame(
 ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0) + theme_void() + geom_text(aes(label = paste0(100*prop, "%")), position = position_stack(vjust=0.5), color="white", size=6) +
-  labs(x = NULL, y = NULL, fill = "T Category") + scale_fill_manual(values=c("#1c6155","#66807b")) + ggtitle("Pie Chart of T Category Proportions for Malign Breast Tumors")
+  labs(x = NULL, y = NULL, fill = "T Category") + scale_fill_manual(values=c("#1c6155","#66807b")) + ggtitle("Pie Chart of T Category Proportions for Malign Tumors (221 obs.)")
 
 
 ```
 
 
 
-
+c
 
 
 
