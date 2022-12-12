@@ -1976,10 +1976,6 @@ draw_confusion_matrix_K_Means1(Confusion_Matrix_K_Means1)
 > Comments: We can appreciate the K-Means algorithm to have found 2 types of differents tumours in our dataset, showing that we do have good seperability from our features. The Accuracy is not quite good, again the clustering is not aimed at being good in predictions but rather show some insights about the dataset mixed with some knowledge in the field. 
 
 
-
-
-
-
 #### K-Means Clustering with only Malign Tumors - Model 2
 
 Since Cancerous Tumors in the Breasts are not all equal, some of them being at different stages or type, we could apply the K-Means Clustering Model to find out if there is some separations among them and if could suggest an priory number of cluster to further analysis for medical researches. 
@@ -2000,7 +1996,8 @@ For examples, we can find this article about how stages are rated:
 6. HER2 status: Does the cancer make too much of a protein called HER2?
 7. Grade of the cancer (G): How much do the cancer cells look like normal cells?"
 
-We can see that we lack a lot of information from this dataset, we can only infer the size of the cancer based on 1 tumor, without nearby information. Thus we will be limited in the clustering method to only size. 
+We can see that we lack a lot of information only using this dataset, we could only infer the size of the cancer based on 1 tumor, without nearby information. Thus we will be limited in the clustering method to only size as an information for the stage of the tumor. 
+
 
 ```{r K-means Clustering Model 2}
 
