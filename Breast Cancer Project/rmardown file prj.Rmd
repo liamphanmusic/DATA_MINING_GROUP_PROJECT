@@ -2028,7 +2028,7 @@ Cluster_Malign_2 <- kmeans(Malign_ClusterDF[,-1], centers = 2, iter.max = 100, n
 > Comments: All 3 methods don't converge to the same number of clusters, but we can see that the Elbow Method and Silhouette Method would either say 2 or 3 groups being optimal. The Gap Statistic show no cluster separations from the Malign tumors. We can try separating into 2 and 3 clusters and see the profiling of those groups. (For simplictiy, we only compare mean variables as meaningful measures to intepret our tumors.)
 
 
-#### Model 2 with 3 Clusters - Plot
+##### Model 2 with 3 Clusters - Plot
 
 <center>
 
@@ -2045,7 +2045,7 @@ fviz_cluster(Cluster_Malign_1, data = Malign_ClusterDF[,-1], main="Cluster Model
 
 > Comments: Some overlap occurs in this 2D graphs, but considering all dimensions, there is no overlap at all. We can see that we could with human interpretation, see that there would be indeed 3 different clusters in the Malign Tumors. Let's check the centroid. 
 
-### Centroid of Model 2 with 3 Clusters
+#####  Centroid of Model 2 with 3 Clusters
 
 ```{r Model 2 Centroid - 3 Clusters}
 
@@ -2059,7 +2059,7 @@ DT::datatable(round(Clusters_Malign_1_Centers,5), caption = "Centroid from Model
 > Comments: We can see that the **radius_mean** (**perimeter_mean** and **area_mean** are quite similar) is indeed being one variable cleary seperating the Malign Tumors into 3 clusters, **concavity_mean** and **compactness_mean** as well. **smoothness_mean** is also seperating clusters from each other. (For simplictiy, we only compare mean variables as meaningful measures to intepret our tumors.)
 
 
-### Cluster Members with 3 Clusters 
+#####  Cluster Members with 3 Clusters 
 
 ```{r Cluster Member for 3 Clusters in Malign}
 
@@ -2079,7 +2079,7 @@ DT::datatable(cluster_3[,-1], caption = "Cluster 3")
 ```
 
 
-### Boxplots for Comparison of **radius_mean**
+#####  Boxplots for Comparison of **radius_mean**
 
 ```{r boxplot comparison of 3 clusters}
 
@@ -2117,7 +2117,7 @@ annotate_figure(ggarrange1,
 
 > Comments: We can see some tumors being greater than 20mm or between 15mm and 20mm, and lastly under 15mm. Such result in the clusters median is very intersting and knowing how the staging system is done can actually lead us to prefer the clustering into 2 groups: 1 cluster being below 20mm and the other greater or equal than 20mm. We will do as such in the following part.
 
-#### Model 2 with 2 Clusters - Plot
+#####  Model 2 with 2 Clusters - Plot
 
 <center>
 
@@ -2134,7 +2134,7 @@ fviz_cluster(Cluster_Malign_2, data = Malign_ClusterDF[,-1], main="Cluster Model
 
 > Comments: Overlapping still occurs in such 2d graphs, but we can see also the trend of 2 groups, the Red one being more spread than the blue one, and some spread also happen in the bottom center of the plot for the blue cluster. 
 
-### Centroid of Model 2 with 2 Clusters
+#####  Centroid of Model 2 with 2 Clusters
 
 ```{r Model 2 Centroid - 2 Clusters}
 
@@ -2146,7 +2146,7 @@ DT::datatable(round(Clusters_Malign_2_Centers,5), caption = "Centroid from Model
 
 > Comments: We can also see the **radius_mean** (**perimeter_mean** and **area_mean**) being very important in the separation, **compactness_mean** and **concavity_mean** as well. **symmetry_mean** is also quite different and **smoothness_mean** as well. 
 
-### Cluster Members with 2 Clusters 
+#####  Cluster Members with 2 Clusters 
 
 ```{r Cluster Member for 2 Clusters in Malign}
 
@@ -2164,7 +2164,7 @@ DT::datatable(cluster2_2[,-1], caption = "Cluster 2")
 ```
 
 
-### Boxplots for Comparison of **radius_mean**
+#####  Boxplots for Comparison of **radius_mean**
 
 ```{r boxplot comparison of 2 clusters}
 
@@ -2210,6 +2210,42 @@ Cluster 1 with **T2** could potential lead us to such Stages:
 [Breast Cancer Stages - cancer.org](https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/stages-of-breast-cancer.html)
 
 [Breast Cancer: Stages - Cancer.Net](https://www.cancer.net/cancer-types/breast-cancer/stages)
+
+
+#####  Proportions of T1 and T2 (Hypothesis) 
+
+```{r Staging Proportions of T1 and T2}
+
+# Computing Proportions of T1 and T2
+Proportions_T1 <- nrow(cluster2_2)/nrow(Malign_ClusterDF_No_Scale)
+Proportions_T2 <- nrow(cluster2_1)/nrow(Malign_ClusterDF_No_Scale)
+
+# Rounding Proportions
+Proportions_T1 <- round(Proportions_T1,3)
+Proportions_T2 <- round(Proportions_T2,3)
+
+# Pie Chart Dataframe
+Pie_T1_T2 <- data.frame(
+  t = c("T1", "T2"),
+  n = c(151, 61),
+  prop = c(Proportions_T1, Proportions_T2))
+
+# Pie ggplot
+ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) + theme_void() + geom_text(aes(label = paste0(100*prop, "%")), position = position_stack(vjust=0.5), color="white", size=6) +
+  labs(x = NULL, y = NULL, fill = "T Category") + scale_fill_manual(values=c("#1c6155","#66807b")) + ggtitle("Pie Chart of T Category Proportions for Malign Breast Tumors")
+
+
+```
+
+
+
+
+
+
+
+
 
 # Conclusion
 
