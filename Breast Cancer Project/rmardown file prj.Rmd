@@ -184,6 +184,8 @@ ORIGINAL range
 
 ## Partitioning 
 
+We partition the data into Training (50%), Validation (30%) and Test (20%)
+
 ```{r Partitioning the Dataset}
 
 # Splitting each Set from the ORIGINAL Dataset
@@ -201,8 +203,6 @@ Prop_Test <- (nrow(Test)/nrow(ORIGINAL))*100
 paste("The Proportions are:", round(Prop_Training,2),"% In Training,",round(Prop_Validation,2),"% In Validation, and ",round(Prop_Test,2),"% In Test")
 
 ```
-
-TRAINING 50, val 30, TEST 20
 
 # Supervised Learning
 
