@@ -1833,6 +1833,7 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 ### K-Means Clustering
 
+
 ```{r K-Means Clustering Preprocess}
 
 set.seed(1)
@@ -1853,6 +1854,9 @@ KClusteringDF_Preprocess <- predict(Norm_Kmeans, KClusteringDF)
 # Separate Benign and Malign into 2 Datasets
 Benign_ClusterDF <- KClusteringDF_Preprocess[KClusteringDF_Preprocess$diagnosis == 0,]
 Malign_ClusterDF <- KClusteringDF_Preprocess[KClusteringDF_Preprocess$diagnosis == 1,]
+
+# Without Preprocess for Malign DF
+Malign_ClusterDF_No_Scale <- KClusteringDF[KClusteringDF$diagnosis == 1,]
 
 ```
 
@@ -1974,7 +1978,7 @@ draw_confusion_matrix_K_Means1(Confusion_Matrix_K_Means1)
 ```
 
 
-> Comments: We can appreciate the K-Means algorithm to have found 2 types of differents tumours in our dataset, showing that we do have good seperability from our features. The Accuracy is not quite good, again the clustering is not aimed at being good in predictions but rather show some insights about the dataset mixed with some knowledge in the field. 
+> Comments: We can appreciate the K-Means algorithm to have found 2 types of differents tumours in our dataset (Malign and Benign), showing that we do have good seperability from our features. The Accuracy is not quite good, again the clustering is not aimed at being good in predictions but rather show some insights about the dataset mixed with some knowledge in the field. 
 
 
 #### K-Means Clustering with only Malign Tumors - Model 2
@@ -2021,7 +2025,8 @@ Cluster_Malign_2 <- kmeans(Malign_ClusterDF[,-1], centers = 2, iter.max = 100, n
 
 ```
 
-> Comments:  
+> Comments: All 3 methods don't converge to the same number of clusters, but we can see that the Elbow Method and Silhouette Method would either say 2 or 3 groups being optimal. The Gap Statistic show no cluster separations from the Malign tumors. We can try separating into 2 and 3 clusters and see the profiling of those groups. (For simplictiy, we only compare mean variables as meaningful measures to intepret our tumors.)
+
 
 #### Model 2 with 3 Clusters - Plot
 
@@ -2038,7 +2043,7 @@ fviz_cluster(Cluster_Malign_1, data = Malign_ClusterDF[,-1], main="Cluster Model
 
 </center>
 
-> Comments: 
+> Comments: Some overlap occurs in this 2D graphs, but considering all dimensions, there is no overlap at all. We can see that we could with human interpretation, see that there would be indeed 3 different clusters in the Malign Tumors. Let's check the centroid. 
 
 ### Centroid of Model 2 with 3 Clusters
 
@@ -2048,10 +2053,69 @@ Clusters_Malign_1_Centers <- Cluster_Malign_1$centers
 
 DT::datatable(round(Clusters_Malign_1_Centers,5), caption = "Centroid from Model 2 - 3 Clusters")
 
+
 ```
 
-> Comments: 
+> Comments: We can see that the **radius_mean** (**perimeter_mean** and **area_mean** are quite similar) is indeed being one variable cleary seperating the Malign Tumors into 3 clusters, **concavity_mean** and **compactness_mean** as well. **smoothness_mean** is also seperating clusters from each other. (For simplictiy, we only compare mean variables as meaningful measures to intepret our tumors.)
 
+
+### Cluster Members with 3 Clusters 
+
+```{r Cluster Member for 3 Clusters in Malign}
+
+# Cluster Members
+split1<- split(Malign_ClusterDF_No_Scale, Cluster_Malign_1$cluster)
+
+# Split Cluster to Original Malign Not Scaled DF
+cluster_1 <- split1$`1`
+cluster_2 <- split1$`2`
+cluster_3 <- split1$`3`
+
+# Data Table
+DT::datatable(cluster_1[,-1], caption = "Cluster 1")
+DT::datatable(cluster_2[,-1], caption = "Cluster 2 ")
+DT::datatable(cluster_3[,-1], caption = "Cluster 3")
+
+```
+
+
+### Boxplots for Comparison of **radius_mean**
+
+```{r boxplot comparison of 3 clusters}
+
+# Load Libaries
+library(ggpubr)
+library(ggplot2)
+
+# Boxplot with ggplot
+boxcluster1 <- ggplot(cluster_1) +
+ aes(x = "", y = radius_mean) +
+ geom_boxplot(fill = "#1c6155") +
+ labs(title = "Cluster 1", 
+ subtitle = "in millimiters") +
+ theme_minimal() + ylim(10, 30)
+
+boxcluster2 <- ggplot(cluster_2) +
+ aes(x = "", y = radius_mean) +
+ geom_boxplot(fill = "#1c6155") +
+ labs(title = "Cluster 2", 
+ subtitle = "in millimiters") +
+ theme_minimal() + ylim(10, 30)
+
+boxcluster3 <- ggplot(cluster_3) +
+ aes(x = "", y = radius_mean) +
+ geom_boxplot(fill = "#1c6155") +
+ labs(title = "Cluster 3", 
+ subtitle = "in millimiters") +
+ theme_minimal() + ylim(10, 30)
+
+ggarrange1 <- ggarrange(boxcluster1,boxcluster2,boxcluster3, ncol = 3)
+annotate_figure(ggarrange1,
+                top = text_grob("Boxplot for radius_mean Among Clusters", color = "black", face = "bold", size = 14))
+
+```
+
+> Comments: We can see some tumors being greater than 20mm or between 15mm and 20mm, and lastly under 15mm. Such result in the clusters median is very intersting and knowing how the staging system is done can actually lead us to prefer the clustering into 2 groups: 1 cluster being below 20mm and the other greater or equal than 20mm. We will do as such in the following part.
 
 #### Model 2 with 2 Clusters - Plot
 
@@ -2068,7 +2132,7 @@ fviz_cluster(Cluster_Malign_2, data = Malign_ClusterDF[,-1], main="Cluster Model
 
 </center>
 
-> Comments: 
+> Comments: Overlapping still occurs in such 2d graphs, but we can see also the trend of 2 groups, the Red one being more spread than the blue one, and some spread also happen in the bottom center of the plot for the blue cluster. 
 
 ### Centroid of Model 2 with 2 Clusters
 
@@ -2080,7 +2144,73 @@ DT::datatable(round(Clusters_Malign_2_Centers,5), caption = "Centroid from Model
 
 ```
 
-> Comments: 
+> Comments: We can also see the **radius_mean** (**perimeter_mean** and **area_mean**) being very important in the separation, **compactness_mean** and **concavity_mean** as well. **symmetry_mean** is also quite different and **smoothness_mean** as well. 
+
+### Cluster Members with 2 Clusters 
+
+```{r Cluster Member for 2 Clusters in Malign}
+
+# Cluster Members
+split2<- split(Malign_ClusterDF_No_Scale, Cluster_Malign_2$cluster)
+
+# Split Cluster to Original Malign Not Scaled DF
+cluster2_1 <- split2$`1`
+cluster2_2 <- split2$`2`
+
+# Data Table
+DT::datatable(cluster2_1[,-1], caption = "Cluster 1")
+DT::datatable(cluster2_2[,-1], caption = "Cluster 2")
+
+```
+
+
+### Boxplots for Comparison of **radius_mean**
+
+```{r boxplot comparison of 2 clusters}
+
+# Load Libaries
+library(ggpubr)
+library(ggplot2)
+
+# Boxplot with ggplot
+boxcluster1 <- ggplot(cluster_1) +
+ aes(x = "", y = radius_mean) +
+ geom_boxplot(fill = "#1c6155") +
+ labs(title = "Cluster 1 (T2)", 
+ subtitle = "in millimiters") +
+ theme_minimal() + ylim(10, 30)
+
+boxcluster2 <- ggplot(cluster_2) +
+ aes(x = "", y = radius_mean) +
+ geom_boxplot(fill = "#1c6155") +
+ labs(title = "Cluster 2 (T1)", 
+ subtitle = "in millimiters") +
+ theme_minimal() + ylim(10, 30)
+
+ggarrange2 <- ggarrange(boxcluster1,boxcluster2)
+annotate_figure(ggarrange2,
+                top = text_grob("Boxplot for radius_mean Among Clusters", color = "black", face = "bold", size = 14))
+
+```
+
+> Comments: without having the full key pieces information for the staging systems from the American Cancer Society, we can already have some metrics for the **T** key which is the size of the tumor, but without the nearby areas. The dataset suggest that the measure are for primary tumors only. If we look at the **Cluster 1**, the **radius_mean** median seems to be higher than 2cm or 20mm but less than 5cm or 50mm. Thus we would attribute the **T2** key to this Cluster. **Cluster 2** in opposite is having an median close to 1.4cm or 14mm, since this is less than 2cm ro 20mm, we could attribute the key **T1** to this cluster. Nevertheless, we should remember that some member of Cluster 1 are less than 20mm, and thus we shouldn't categorize them as **T2** following the guidelines. For simplicity, we will keep those tumors in the Cluster 1 but if we wanted to decide or not wether a member is subject to **T2**, we should use other metrics to check the size exactitude before removing it to the **T2** label. 
+
+Cluster 2 with T1 could potential lead us to such Stages:
+
+> **Stage IA**: The tumor is small, invasive, and has not spread to the lymph nodes (**T1**, N0, M0). **Stage IB**: Cancer has spread to the lymph nodes and the cancer in the lymph node is larger than 0.2 mm but less than 2 mm in size. There is either no evidence of a tumor in the breast or the tumor in the breast is 20 mm or smaller (T0 or **T1**, N1mi, M0). **Stage IIIC**: A tumor of any size that has spread to 10 or more axillary lymph nodes, the internal mammary lymph nodes, and/or the lymph nodes under the collarbone. It has not spread to other parts of the body (any T, N3, M0). **Stage IV** (metastatic): The tumor can be any size and has spread to other organs, such as the bones, lungs, brain, liver, distant lymph nodes, or chest wall (any T, any N, M1). Metastatic cancer found when the cancer is first diagnosed occurs about 6% of the time. This may be called de novo metastatic breast cancer. Most commonly, metastatic breast cancer is found after a previous diagnosis of early stage breast cancer.
+
+Cluster 1 with **T2** could potential lead us to such Stages:
+
+> **Stage IIA**: Any 1 of these conditions: The tumor is larger than 20 mm but not larger than 50 mm and has not spread to the axillary lymph nodes (**T2**, N0, M0). **Stage IIB**: The tumor is larger than 20 mm but not larger than 50 mm and has spread to 1 to 3 axillary lymph nodes (**T2**, N1, M0). **Stage IIIA**: The tumor of any size has spread to 4 to 9 axillary lymph nodes or to internal mammary lymph nodes. It has not spread to other parts of the body (T0, T1, **T2**, or T3; N2; M0). **Stage IIIC**: A tumor of any size that has spread to 10 or more axillary lymph nodes, the internal mammary lymph nodes, and/or the lymph nodes under the collarbone. It has not spread to other parts of the body (any T, N3, M0). **Stage IV** (metastatic): The tumor can be any size and has spread to other organs, such as the bones, lungs, brain, liver, distant lymph nodes, or chest wall (any T, any N, M1). Metastatic cancer found when the cancer is first diagnosed occurs about 6% of the time. This may be called de novo metastatic breast cancer. Most commonly, metastatic breast cancer is found after a previous diagnosis of early stage breast cancer. 
+
+> Comments: We can see that we lack a lot of information to actually get to the actual stage of the cancerous breast tumors, depending on the source, we may lack 2 more information if we follow *Cancer.Net* staging system: **Node** (N - Has the tumor spread to the lymph nodes? If so, where, what size, and how many?) or **Metastasis** (M - Has the cancer spread to other parts of the body?). *The American Cancer Society* requires way more information, up to 7 in total plus additional recurrence test. Here is the 7 keys parameters: 
+
+[image](7 Keys.png)
+
+[Breast Cancer Stages - cancer.org](https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/stages-of-breast-cancer.html)
+
+[Breast Cancer: Stages - Cancer.Net](https://www.cancer.net/cancer-types/breast-cancer/stages)
+
 
 # Conclusion
 
@@ -2114,6 +2244,8 @@ DT::datatable(round(Clusters_Malign_2_Centers,5), caption = "Centroid from Model
 
 [Types of Breast Cancer - American Society](https://www.cancer.org/cancer/breast-cancer/about/types-of-breast-cancer.html)
 
-[Breast Cancer Stages](https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/stages-of-breast-cancer.html)
+[Breast Cancer Stages - cancer.org](https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/stages-of-breast-cancer.html)
+
+[Breast Cancer: Stages - Cancer.Net](https://www.cancer.net/cancer-types/breast-cancer/stages)
 
 
