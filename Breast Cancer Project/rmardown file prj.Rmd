@@ -1734,8 +1734,13 @@ DA5.gain <- gains(actual, prob)
 barplot(DA5.gain$mean.resp / mean(actual), names.arg = DA5.gain$depth, xlab = "Percentile",
 ylab = "Mean Response", main = "Decile-wise lift chart")
 ```
+
 highest sensitivity is for qda --> sensitivity is important in this case. 
 
+
+
+
+We can skip this stuff. Talked with others thex didn't do this stuff... especially because our lda / qda works fine. Could potentially run qda with minimal predictors from logistic regression as they work kinda similar. 
 
 
 
