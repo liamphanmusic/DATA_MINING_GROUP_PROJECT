@@ -658,7 +658,7 @@ DF_Best_Logistic_Predictions <- data.frame(Best_Logistic_Predictions_Dummy, Best
 
 # Best Confusion as Data frame
 DF_Best_Logistic_Confusion <- data.frame(c(Best_Logistic_Confusion$byClass[c(1,2)], Best_Logistic_Confusion$overall[1]))
-colnames(DF_Best_Logistic_Confusion) <- "Best Neural Network"
+colnames(DF_Best_Logistic_Confusion) <- "Best Logistic Lasso Regression
 DF_Best_Logistic_Confusion <- t(DF_Best_Logistic_Confusion) # FINAL CONFUSION DATAFRAME
 
 
