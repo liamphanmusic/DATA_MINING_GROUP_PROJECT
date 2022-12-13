@@ -162,8 +162,6 @@ corrplot(Corr_plot, method = "color", col=brewer.pal(n=8, name="BuGn"),tl.col="b
 
 # Data Preparation
 
-## General 
-
 ## Transformation
 
 ```{r Transform}
