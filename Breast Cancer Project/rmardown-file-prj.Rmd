@@ -830,9 +830,9 @@ Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy pre
 
 #ROC curve
 response <- data.frame(Validation_M[,1], pruned_pred) 
-response$Validation_M...1.<- as.numeric(as.character(response$Validation_M...1.))
+response$Validation...1.<- as.numeric(as.character(response$Validation...1.))
 response$pruned_pred<- as.numeric(as.character(response$pruned_pred))
-roc_score <- roc(data= response , response=Validation_M...1., pruned_pred) #AUC score
+roc_score <- roc(data= response , response=Validation...1., pruned_pred) #AUC score
 plot(roc_score ,main ="ROC curve")
 
 
@@ -1779,9 +1779,9 @@ Some predictors unimportant -> remove some
 
 ```{r}
 set.seed(1)
-bagging<- bagging(diagnosis ~ ., data =Training_M)
-bag_pred<- predict(bagging, Validation_M, type="class")
-bag_cf <- confusionMatrix(as.factor(bag_pred$class), Validation_M$diagnosis, positive = "1")
+bagging<- bagging(diagnosis ~ ., data =Training)
+bag_pred<- predict(bagging, Validation, type="class")
+bag_cf <- confusionMatrix(as.factor(bag_pred$class), Validation$diagnosis, positive = "1")
 draw_confusion_matrix(bag_cf)
 
 ```
@@ -1791,9 +1791,9 @@ draw_confusion_matrix(bag_cf)
 
 ```{r}
 set.seed(1)
-boosting <- boosting(diagnosis ~ ., data = Training_M)
-boost_pred<- predict(boosting, Validation_M, type="class")
-boost_cf <- confusionMatrix(as.factor(boost_pred$class), Validation_M$diagnosis, positive = "1")
+boosting <- boosting(diagnosis ~ ., data = Training)
+boost_pred<- predict(boosting, Validation, type="class")
+boost_cf <- confusionMatrix(as.factor(boost_pred$class), Validation$diagnosis, positive = "1")
 draw_confusion_matrix(boost_cf)
 ```
 
@@ -1802,11 +1802,11 @@ draw_confusion_matrix(boost_cf)
 
 ```{r}
 set.seed(1)
-rand_f <- randomForest(diagnosis ~ ., data = Training_M, mtry=4, importance = T)
+rand_f <- randomForest(diagnosis ~ ., data = Training, mtry=4, importance = T)
 varImpPlot(rand_f, type=1,cex = 0.7) # we print out the variable importance plot too
 
-rf_pred<- predict(rand_f, Validation_M, type="class")
-rf_cf <- confusionMatrix(as.factor(rf_pred), Validation_M$diagnosis, positive = "1")
+rf_pred<- predict(rand_f, Validation, type="class")
+rf_cf <- confusionMatrix(as.factor(rf_pred), Validation$diagnosis, positive = "1")
 draw_confusion_matrix(rf_cf)
 ```
 
@@ -1815,24 +1815,24 @@ draw_confusion_matrix(rf_cf)
 
 ```{r}
  # For the boosting
-response_boost <- data.frame(Validation_M[,1], boost_pred$class) 
-response_boost$Validation_M...1.<- as.numeric(as.character(response_boost[,1]))
+response_boost <- data.frame(Validation[,1], boost_pred$class) 
+response_boost$Validation...1.<- as.numeric(as.character(response_boost[,1]))
 response_boost$boost_pred.class<- as.numeric(as.character(response_boost[,2]))
-roc_score_boost <- roc(data= response_boost , response=Validation_M...1., boost_pred.class) #AUC score
+roc_score_boost <- roc(data= response_boost , response=Validation...1., boost_pred.class) #AUC score
 
 
 # For bagging
-response_bag <- data.frame(Validation_M[,1], bag_pred$class) 
-response_bag$Validation_M...1.<- as.numeric(as.character(response_bag[,1]))
+response_bag <- data.frame(Validation[,1], bag_pred$class) 
+response_bag$Validation...1.<- as.numeric(as.character(response_bag[,1]))
 response_bag$bag_pred.class<- as.numeric(as.character(response_bag[,2]))
-roc_score_bag <- roc(data= response_bag , response=Validation_M...1., bag_pred.class) #AUC score
+roc_score_bag <- roc(data= response_bag , response=Validation...1., bag_pred.class) #AUC score
 
 
 # For Random Forests
-response_rf <- data.frame(Validation_M[,1], rf_pred) 
-response_rf$Validation_M...1.<- as.numeric(as.character(response_rf[,1]))
+response_rf <- data.frame(Validation[,1], rf_pred) 
+response_rf$Validation...1.<- as.numeric(as.character(response_rf[,1]))
 response_rf$rf_pred<- as.numeric(as.character(response_rf[,2]))
-roc_score_rf <- roc(data= response_rf , response=Validation_M...1., rf_pred) #AUC score
+roc_score_rf <- roc(data= response_rf , response=Validation...1., rf_pred) #AUC score
 
 # Plot ROC curves side by side
 par(mfrow=c(1,3)) 
