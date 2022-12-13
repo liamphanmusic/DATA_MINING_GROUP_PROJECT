@@ -637,7 +637,32 @@ abline(a = 0, b = 1)
 
 ```
 
+
 > Comments:
+
+### Best Logistic Regression
+
+```{r Logistic Regression Best Model}
+
+# Confusion Best
+Best_Logistic_Confusion <- Confusion_Matrix_Logistic_Lasso
+
+# Predictions Best
+Best_Logistic_Predictions_Dummy <- Logistic_Lasso_Predictions_Dummy
+Best_Logistic_Predictions_Dummy <- factor(Best_Logistic_Predictions_Dummy)
+
+Best_Logistic_Predictions_Probabilities <- Logistic_Lasso_Predictions
+
+# Best Predictions as Data frame
+DF_Best_Logistic_Predictions <- data.frame(Best_Logistic_Predictions_Dummy, Best_Logistic_Predictions_Probabilities) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_Logistic_Confusion <- data.frame(c(Best_Logistic_Confusion$byClass[c(1,2)], Best_Logistic_Confusion$overall[1]))
+colnames(DF_Best_Logistic_Confusion) <- "Best Neural Network"
+DF_Best_Logistic_Confusion <- t(DF_Best_Logistic_Confusion) # FINAL CONFUSION DATAFRAME
+
+
+```
  
 ## Classification Tree
 
@@ -1190,6 +1215,30 @@ draw_confusion_matrix_Neural_3(Confusion_Matrix_Neural_3)
 </center>
 
 > Comments: NOT BETTER
+
+
+### Neural Network Best Model
+
+```{r Neural Network Best Model}
+
+# Confusion Best
+Best_Neural_Network_Confusion <- Confusion_Matrix_Neural_2
+
+# Predictions Best
+Best_Neural_Network_Predictions_Dummy <- Predictions_NN2_Dummy
+Best_Neural_Network_Predictions_Dummy <- factor(Best_Neural_Network_Predictions_Dummy)
+
+Best_Neural_Network_Predictions_Probabilities <- Predictions_NN2_Probabilities
+
+# Best Predictions as Data frame
+DF_Best_Neural_Network_Predictions <- data.frame(Best_Neural_Network_Predictions_Dummy, Best_Neural_Network_Predictions_Probabilities) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_Neural_Confusion <- data.frame(c(Best_Neural_Network_Confusion$byClass[c(1,2)], Best_Neural_Network_Confusion$overall[1]))
+colnames(DF_Best_Neural_Confusion) <- "Best Neural Network"
+DF_Best_Neural_Confusion <- t(DF_Best_Neural_Confusion) # FINAL CONFUSION DATAFRAME
+
+```
 
 ## Discriminant Analysis
 
