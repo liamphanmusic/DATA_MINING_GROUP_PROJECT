@@ -1058,7 +1058,7 @@ draw_confusion_matrix_Neural_2(Confusion_Matrix_Neural_2)
 
 </center>
 
-> Comments: Good Specificity and Accuracy
+> Comments: BEST MODEL both Sensitivity and Accuracy
 
 #### ROC Curve for Neural Model 2 
 
@@ -1189,7 +1189,7 @@ draw_confusion_matrix_Neural_3(Confusion_Matrix_Neural_3)
 
 </center>
 
-> Comments: 
+> Comments: NOT BETTER
 
 ## Discriminant Analysis
 
