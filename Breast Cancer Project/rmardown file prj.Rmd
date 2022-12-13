@@ -58,11 +58,11 @@ library(ggpubr) # ggplot addons
 ```{r Confusion Matrix Function (See in References)}
 
 # Confusion matrix
-draw_confusion_matrix <- function(cm) {
+draw_confusion_matrix <- function(cm, titleaddon = '') {
   layout(matrix(c(1,1,2)))
   par(mar=c(2,2,2,2))
   plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
-  title('CONFUSION MATRIX', cex.main=2)
+  title(paste0('CONFUSION MATRIX', ' ', titleaddon), cex.main=2)
 
   # create the matrix 
   rect(150, 430, 240, 370, col='#1c6155')
@@ -743,27 +743,23 @@ plot(roc_score ,main ="ROC curve")
 ## K-Nearest Neighbor
 
 ```{r data prep knn}
-
-ORIGINAL.KNN <- dplyr::select(ORIGINAL, -c("id"))
-# ORIGINAL.KNN$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
-
 # partition
-inds <- partition(ORIGINAL.KNN$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
-ORIGINAL.KNN.train <- ORIGINAL.KNN[inds$train]
-ORIGINAL.KNN.valid <- ORIGINAL.KNN[inds$valid]
-ORIGINAL.KNN.test <- ORIGINAL.KNN[inds$test]
+ORIGINAL.KNN.train <- dplyr::select(Training, -c(id))
+ORIGINAL.KNN.valid <- dplyr::select(Validation, -c(id))
+ORIGINAL.KNN.test <- dplyr::select(Test, -c(id))
 
 # standardize
 norm.value <- preProcess(ORIGINAL.KNN.train, method = c("center", "scale"))
 ORIGINAL.KNN.train <- predict(norm.value, ORIGINAL.KNN.train)
 ORIGINAL.KNN.valid <- predict(norm.value, ORIGINAL.KNN.valid)
 ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
-
 ```
 
 best k 
 
 ```{r knn best k}
+set.seed(1)
+
 accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
 
 # iterating over different k's
@@ -797,7 +793,7 @@ calculate best knn
 
 ```{r best knn}
 # nearest neighbor
-KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 3)
+KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 6)
 
 # predictions response 
 KNN1.pred.valid.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "class")
@@ -807,7 +803,7 @@ KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagn
 
 # Confusionmatrix
 KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
-draw_confusion_matrix(KNN1.conf.mat)
+draw_confusion_matrix(KNN1.conf.mat, titleaddon = 'KNN')
 ```
 
 ## Neural Networks
@@ -1204,9 +1200,6 @@ First data prep before model -> center / scale,
 ```{r DA data prep}
 set.seed(1)
 
-ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
-# ORIGINAL.DA$diagnosis <- factor(ifelse(ORIGINAL$diagnosis == "M", 1, 0))
-
 # without outliers
 # ORIGINAL.DA.WOO <- tibble::tibble(ORIGINAL.DA)
 # 
@@ -1221,13 +1214,11 @@ ORIGINAL.DA <- dplyr::select(ORIGINAL, -c("id"))
 #   dplyr::select(-q95) %>%
 #   spread(key, value) %>%
 #   dplyr::select(-row)
-
-
+                                   
 # partition
-inds <- partition(ORIGINAL.DA$diagnosis, p = c(train = 0.5, valid = 0.3, test = 0.2))
-ORIGINAL.DA.train <- ORIGINAL.DA[inds$train]
-ORIGINAL.DA.valid <- ORIGINAL.DA[inds$valid]
-ORIGINAL.DA.test <- ORIGINAL.DA[inds$test]
+ORIGINAL.DA.train <- dplyr::select(Training, -c(id))
+ORIGINAL.DA.valid <- dplyr::select(Validation, -c(id))
+ORIGINAL.DA.test <- dplyr::select(Test, -c(id))
 
 # standardize
 norm.value <- preProcess(ORIGINAL.DA.train, method = c("center", "scale"))
@@ -1255,14 +1246,7 @@ DA1.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
 DA1.conf.mat <- confusionMatrix(DA1.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA1.conf.mat)
-
-# Lift chart
-actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA1.pred.valid.prob)
-DA1.gain <- gains(actual, prob)
-barplot(DA1.gain$mean.resp / mean(actual), names.arg = DA1.gain$depth, xlab = "Percentile",
-ylab = "Mean Response", main = "Decile-wise lift chart")
+draw_confusion_matrix(DA1.conf.mat, titleaddon = 'Discriminant Analysis')
 
 # Evaluating LDA
 # doesn't work
@@ -1288,14 +1272,7 @@ DA2.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
 DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA2.conf.mat)
-
-# Lift chart
-actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA2.pred.valid.prob)
-DA2.gain <- gains(actual, prob)
-barplot(DA2.gain$mean.resp / mean(actual), names.arg = DA2.gain$depth, xlab = "Percentile",
-ylab = "Mean Response", main = "Decile-wise lift chart")
+draw_confusion_matrix(DA2.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
 Doesn't get better... lets continue with lda
@@ -1319,15 +1296,7 @@ DA3.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
 DA3.conf.mat <- confusionMatrix(DA3.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA3.conf.mat)
-
-# Lift chart
-actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA3.pred.valid.prob)
-DA3.gain <- gains(actual, prob)
-barplot(DA3.gain$mean.resp / mean(actual), names.arg = DA3.gain$depth, xlab = "Percentile",
-ylab = "Mean Response", main = "Decile-wise lift chart")
-
+draw_confusion_matrix(DA3.conf.mat, titleaddon = 'Discriminant Analsis with priors')
 ```
 Gives back same model as without prior -> function already does it.
 
@@ -1347,14 +1316,7 @@ DA4.pred.valid.resp <- factor(ifelse(DA4.pred.valid.prob > 0.5, 1, 0))
 
 # confusion matrix
 DA4.conf.mat <- confusionMatrix(DA4.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA4.conf.mat)
-
-# Lift chart
-actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA4.pred.valid.prob)
-DA4.gain <- gains(actual, prob)
-barplot(DA4.gain$mean.resp / mean(actual), names.arg = DA4.gain$depth, xlab = "Percentile",
-ylab = "Mean Response", main = "Decile-wise lift chart")
+draw_confusion_matrix(DA4.conf.mat, 'Mixture discriminant analysis')
 ```
 
 try fda
@@ -1373,19 +1335,10 @@ DA5.pred.valid.resp <- factor(ifelse(DA5.pred.valid.prob > 0.5, 1, 0))
 
 # confusion matrix
 DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA5.conf.mat)
-
-# Lift chart
-actual <- as.numeric(as.character(ORIGINAL.DA.valid$diagnosis))
-prob <- as.numeric(DA5.pred.valid.prob)
-DA5.gain <- gains(actual, prob)
-barplot(DA5.gain$mean.resp / mean(actual), names.arg = DA5.gain$depth, xlab = "Percentile",
-ylab = "Mean Response", main = "Decile-wise lift chart")
+draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Flexible discriminant analysis')
 ```
 
 highest sensitivity is for qda --> sensitivity is important in this case. 
-
-
 
 
 We can skip this stuff. Talked with others thex didn't do this stuff... especially because our lda / qda works fine. Could potentially run qda with minimal predictors from logistic regression as they work kinda similar. 
