@@ -43,3 +43,5 @@ neuralnet
 nnet
 factoextra
 ggpubr
+usethis
+devtools
