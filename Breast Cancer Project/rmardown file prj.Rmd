@@ -705,9 +705,8 @@ DF_Best_Logistic_Predictions <- data.frame(Best_Logistic_Predictions_Dummy, Best
 
 # Best Confusion as Data frame
 DF_Best_Logistic_Confusion <- data.frame(c(Best_Logistic_Confusion$byClass[c(1,2)], Best_Logistic_Confusion$overall[1]))
-colnames(DF_Best_Logistic_Confusion) <- "Best Logistic Lasso Regression
+colnames(DF_Best_Logistic_Confusion) <- "Best Logistic Lasso Regression"
 DF_Best_Logistic_Confusion <- t(DF_Best_Logistic_Confusion) # FINAL CONFUSION DATAFRAME
-
 
 ```
  
@@ -811,6 +810,7 @@ plot(roc_score ,main ="ROC curve")
 ## K-Nearest Neighbor
 
 ```{r data prep knn}
+
 # partition
 ORIGINAL.KNN.train <- dplyr::select(Training, -c(id))
 ORIGINAL.KNN.valid <- dplyr::select(Validation, -c(id))
@@ -821,11 +821,13 @@ norm.value <- preProcess(ORIGINAL.KNN.train, method = c("center", "scale"))
 ORIGINAL.KNN.train <- predict(norm.value, ORIGINAL.KNN.train)
 ORIGINAL.KNN.valid <- predict(norm.value, ORIGINAL.KNN.valid)
 ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
+
 ```
 
 best k 
 
 ```{r knn best k}
+
 set.seed(1)
 
 accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
@@ -860,6 +862,7 @@ ggplot(accuracy.df) +
 calculate best knn
 
 ```{r best knn}
+
 set.seed(1)
 # nearest neighbor
 KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 6)
@@ -882,6 +885,7 @@ KNN1.pred.test.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnos
 # Confusionmatrix Test
 KNN1.conf.mat.test <- confusionMatrix(KNN1.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
 draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = 'KNN test')
+
 ```
 
 ## Neural Networks
@@ -1530,11 +1534,11 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 ```
 
 
+#### Best Model - Boosting Trees
 
-###Best 5 Models
+```{r Best Model - Boosting Trees}
 
-```{r}
-# Best tree model is the beosted tree
+# Best tree model is the boosted tree
 # Best tree confusion matrix
 best_boosted_confusion <- boost_cf
 
@@ -1552,6 +1556,27 @@ DF_best_boosted_confusion <- data.frame(c(best_boosted_confusion$byClass[c(1,2)]
 colnames(DF_best_boosted_confusion) <- "Boosted Tree Model"
 DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 
+```
+
+
+### Best 5 Models
+
+```{r Best 3 Models among all}
+
+# Best Logistic Regression
+DF_Best_Logistic_Predictions
+DF_Best_Logistic_Confusion
+
+# Best K-Nearest Neighbor
+
+
+# Best Boosting Trees
+DF_best_boosted_pred
+DF_best_boosted_confusion
+
+# Best Neural Network
+DF_Best_Neural_Network_Predictions
+DF_Best_Neural_Confusion
 
 
 ```
