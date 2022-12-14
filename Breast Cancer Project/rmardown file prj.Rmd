@@ -1561,11 +1561,15 @@ DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 
 ### Best 5 Models
 
-```{r Best 3 Models among all}
+```{r Best 5 Models amongst all, echo=FALSE}
 
 # Best Logistic Regression
 DF_Best_Logistic_Predictions
 DF_Best_Logistic_Confusion
+
+# As Numeric
+DF_Best_Logistic_Predictions[,1] <- as.numeric(as.character(DF_Best_Logistic_Predictions[,1]))
+DF_Best_Logistic_Predictions[,2] <- as.numeric(DF_Best_Logistic_Predictions[,2])
 
 # Best K-Nearest Neighbor
 
@@ -1574,20 +1578,50 @@ DF_Best_Logistic_Confusion
 DF_best_boosted_pred
 DF_best_boosted_confusion
 
+# As Numeric
+DF_best_boosted_pred[,1] <- as.numeric(as.character(DF_best_boosted_pred[,1]))
+DF_best_boosted_pred[,2] <- as.numeric(DF_best_boosted_pred[,2])
+
+
+# Discriminant Analysis
+
+
+
 # Best Neural Network
 DF_Best_Neural_Network_Predictions
 DF_Best_Neural_Confusion
+
+# As Numeric
+DF_Best_Neural_Network_Predictions[,1] <- as.numeric(as.character(DF_Best_Neural_Network_Predictions[,1]))
+DF_Best_Neural_Network_Predictions[,2] <- as.numeric(DF_Best_Neural_Network_Predictions[,2])
+                                   
+```
+
+
+### Majority Vote
+
+```{r Majority Vote}
+
+
+Majority_DF <- data.frame(DF_Best_Logistic_Predictions[,1], DF_best_boosted_pred[,1], DF_Best_Neural_Network_Predictions[,1])
+
+for(i in 1:nrow(Majority_DF)){
+  if(sum(Majority_DF[i,1] + Majority_DF[i,2] + Majority_DF[i,3])/3 > 0.5){
+    Majority_DF[i,4] = 1
+    }else{Majority_DF[i,4] = 0}
+}
+
+colnames(Majority_DF) <- c("Logistic Regression", "Boosted Trees","Neural Network","Majority Vote")
+
+Majority_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
 
 
 ```
 
 
+# Average of Models
 
 
-
-### majority vote -> combined
-
-### average of models -> combined
 
 ## Comparision of Models
 
