@@ -1615,6 +1615,7 @@ colnames(Majority_DF) <- c("Logistic Regression", "Boosted Trees","Neural Networ
 
 Majority_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
 
+DT::datatable(Majority_DF, caption = "Majority of Votes") 
 
 ```
 
@@ -1635,6 +1636,7 @@ Average_DF$'Average Dummy' <- ifelse(Average_DF$`Average`>0.5,1,0)
 
 Average_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
 
+DT::datatable(Average_DF, caption = "Average of Models Probabilities") 
 
 ```
 
