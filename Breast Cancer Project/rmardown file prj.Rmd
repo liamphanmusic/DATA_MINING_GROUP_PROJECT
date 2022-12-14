@@ -174,7 +174,7 @@ corrplot(Corr_plot, method = "color", col=brewer.pal(n=8, name="BuGn"),tl.col="b
 
 ### predictors means plots: 
 
-```{r, fig.height= 10, fig.width= 10}
+```{r Pairs Plots , fig.height= 10, fig.width= 10}
 ggpairs(ORIGINAL, columns = 3:12, aes(color = diagnosis, alpha = 0.5),
         diag = list(continuous = "blankDiag"),  title = "Pairs plot for Means of Predictors")+ 
    theme(axis.text.x = element_text(angle = 90), axis.title.y.right = element_text(size = 0.4)) # readable x axis
