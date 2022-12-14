@@ -1619,8 +1619,24 @@ Majority_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis)
 ```
 
 
-# Average of Models
+# Average of Models Probabilities
 
+```{r Average of Models Probabilities}
+
+Average_DF <- data.frame(DF_Best_Logistic_Predictions[,2], DF_best_boosted_pred[,2], DF_Best_Neural_Network_Predictions[,2])
+
+for(i in 1:nrow(Average_DF)){
+  Average_DF[i,4] <- sum(Average_DF[i,1] + Average_DF[i,2] + Average_DF[i,3])/3
+}
+
+colnames(Average_DF) <- c("Logistic Regression", "Boosted Trees","Neural Network","Average")
+
+Average_DF$'Average Dummy' <- ifelse(Average_DF$`Average`>0.5,1,0)
+
+Average_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
+
+
+```
 
 
 ## Comparision of Models
