@@ -1456,8 +1456,6 @@ Some predictors unimportant -> remove some
 
 ## Ensemble Methods
 
-### 5 best models
-
 ### Bagging
 
 ```{r}
@@ -1487,7 +1485,6 @@ draw_confusion_matrix(boost_cf)
 set.seed(1)
 rand_f <- randomForest(diagnosis ~ ., data = Training_M, mtry=4, importance = T)
 varImpPlot(rand_f, type=1,cex = 0.7) # we print out the variable importance plot too
-
 rf_pred<- predict(rand_f, Validation_M, type="class")
 rf_cf <- confusionMatrix(as.factor(rf_pred), Validation_M$diagnosis, positive = "1")
 draw_confusion_matrix(rf_cf)
@@ -1525,6 +1522,36 @@ plot(roc_score_bag ,main ="ROC curve for Bagging", cex=1)
 plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 ```
+
+
+
+###Best 5 Models
+
+```{r}
+# Best tree model is the beosted tree
+# Best tree confusion matrix
+best_boosted_confusion <- boost_cf
+
+#predictions for best confusion matrix
+best_boosted_pred <- boost_pred
+
+# Probabilities of predictions
+best_boosted_prob<- predict(boosting, Validation_M, type="prob")
+
+# Prediction and probabilities data-frame
+DF_best_boosted_pred <- data.frame(best_boosted_pred$class,best_boosted_prob$prob[,2])
+
+#table of Confusion matrix values
+DF_best_boosted_confusion <- data.frame(c(best_boosted_confusion$byClass[c(1,2)], best_boosted_confusion$overall[1]))
+colnames(DF_best_boosted_confusion) <- "Boosted Tree Model"
+DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
+
+
+
+```
+
+
+
 
 
 ### majority vote -> combined
