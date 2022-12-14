@@ -52,6 +52,7 @@ library(neuralnet) # Neural Network
 library(nnet) # Neural network 
 library(factoextra) # K-Means Clustering
 library(ggpubr) # ggplot addons
+library(GGally) # pairs plots
 
 ```
 
@@ -166,6 +167,37 @@ Corr_plot <- cor(Corr_Data)
 
 # Correlations plotting
 corrplot(Corr_plot, method = "color", col=brewer.pal(n=8, name="BuGn"),tl.col="black",tl.srt=45, addCoef.col = "black",number.cex = 1)
+
+```
+
+## Pairs plots
+
+### predictors means plots: 
+
+```{r, fig.height= 10, fig.width= 10}
+ggpairs(ORIGINAL, columns = 3:12, aes(color = diagnosis, alpha = 0.5),
+        diag = list(continuous = "blankDiag"),  title = "Pairs plot for Means of Predictors")+ 
+   theme(axis.text.x = element_text(angle = 90), axis.title.y.right = element_text(size = 0.4)) # readable x axis
+
+```
+
+
+### predictors SE plots: 
+
+```{r, fig.height= 10, fig.width= 10}
+ggpairs(ORIGINAL, columns = 13:22, aes(color = diagnosis, alpha = 0.5),
+        diag = list(continuous = "blankDiag"),  title = "Pairs plot for SE of Predictors")+ 
+   theme(axis.text.x = element_text(angle = 90), axis.title.y.right = element_text(size = 0.4)) # readable x axis
+```
+
+
+
+### predictors "worst" plots: 
+
+```{r, fig.height= 10, fig.width= 10}
+ggpairs(ORIGINAL, columns = 23:32, aes(color = diagnosis, alpha = 0.5),
+        diag = list(continuous = "blankDiag"), title = "Pairs plot for Worsts of Predictors")+ 
+   theme(axis.text.x = element_text(angle = 90),axis.title.y.right = element_text(size = 0.4)) # readable x axis
 
 ```
 
