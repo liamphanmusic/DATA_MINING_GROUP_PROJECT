@@ -683,9 +683,9 @@ Validation_M <- Validation
 Test_M <- Test
 
 #Take out the id column
-Training_M <- Training_M[,-c(1)]
-Validation_M <- Validation_M[,-c(1)]
-Test_M<- Test_M[, -c(1)]
+Training_M <- Training_M[,-c("id")]
+Validation_M <- Validation_M[,-c("id")]
+Test_M<- Test_M[, -c("id")]
 
 
 # Checking if proportions are right
