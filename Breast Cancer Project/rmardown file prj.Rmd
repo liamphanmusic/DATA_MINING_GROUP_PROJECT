@@ -824,13 +824,15 @@ ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
 
 ```
 
-best k 
+get best k 
 
 ```{r knn best k}
 
 set.seed(1)
 
 accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
+sensitivity.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
+
 
 # iterating over different k's
 for(i in 1:30){
@@ -844,11 +846,14 @@ for(i in 1:30){
   KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "prob")[,2]
   
   # Confusionmatrix
+  sensitivity.df[i, 2] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$byClass[1]
   accuracy.df[i, 2] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$overall[1]
+
 }
 
 # table in markdown
 datatable(accuracy.df)
+datatable(sensitivity.df)
 
 # plot the k's 
 ggplot(accuracy.df) +
@@ -857,11 +862,18 @@ ggplot(accuracy.df) +
  labs(x = "Number of k nearest neighbours", 
  y = "Accuracy", title = "Accuracy regarding k") +
  theme_minimal()
+
+ggplot(sensitivity.df) +
+ aes(x = k, y = accuracy) +
+ geom_line(size = 0.7, colour = "#112646") +
+ labs(x = "Number of k nearest neighbours", 
+ y = "Accuracy", title = "Accuracy regarding k") +
+ theme_minimal()
 ```
 
-calculate best knn
+best k with accuracy and not overfitted (second highest sensitivity) k=6
 
-```{r best knn}
+```{r best knn k=6}
 
 set.seed(1)
 # nearest neighbor
@@ -876,7 +888,9 @@ KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagn
 # Confusionmatrix Validation
 KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
 draw_confusion_matrix(KNN1.conf.mat, titleaddon = 'KNN')
+```
 
+```{r best knn k=6 test}
 # predictions response 
 KNN1.pred.test.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
 
@@ -885,6 +899,56 @@ KNN1.pred.test.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnos
 # Confusionmatrix Test
 KNN1.conf.mat.test <- confusionMatrix(KNN1.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
 draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = 'KNN test')
+```
+
+highest sensitivity at k=1 --> overfitted
+
+```{r best knn in relativity to sensitivity k=1}
+set.seed(1)
+# nearest neighbor
+KNN2 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 1)
+
+# predictions response 
+KNN2.pred.valid.resp <- predict(KNN2, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "class")
+
+# predictions prob 
+KNN2.pred.valid.prob <- predict(KNN2, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "prob")[,2]
+
+# Confusionmatrix Validation
+KNN2.conf.mat <- confusionMatrix(KNN2.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
+draw_confusion_matrix(KNN2.conf.mat, titleaddon = 'KNN')
+```
+
+```{r best knn in relativity to sensitivity k=1 test}
+# predictions response 
+KNN2.pred.test.resp <- predict(KNN2, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
+
+# predictions prob 
+KNN2.pred.test.prob <- predict(KNN2, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "prob")[,2]
+# Confusionmatrix Test
+KNN2.conf.mat.test <- confusionMatrix(KNN2.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
+draw_confusion_matrix(KNN2.conf.mat.test, titleaddon = 'KNN test')
+```
+
+```{r KNN Best Model}
+
+# Confusion Best
+Best_KNN_Confusion <- KNN1.conf.mat
+
+# Predictions Best
+Best_KNN_Predictions_Dummy <- KNN1.pred.valid.resp
+Best_KNN_Predictions_Dummy <- factor(Best_KNN_Predictions_Dummy)
+
+Best_KNN_Predictions_Probabilities <- KNN1.pred.valid.prob
+
+
+# Best Predictions as Data frame
+DF_Best_KNN_Predictions <- data.frame(Best_KNN_Predictions_Dummy, Best_KNN_Predictions_Probabilities) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_KNN_Confusion <- data.frame(c(Best_KNN_Confusion$byClass[c(1,2)], Best_KNN_Confusion$overall[1]))
+colnames(DF_Best_KNN_Confusion) <- "Best KNN"
+DF_Best_KNN_Confusion <- t(DF_Best_KNN_Confusion) # FINAL CONFUSION DATAFRAME
 
 ```
 
@@ -1335,7 +1399,7 @@ ORIGINAL.DA.test <- predict(norm.value, ORIGINAL.DA.test)
 
 try with lda
 
-```{r first DA}
+```{r lda}
 set.seed(1)
 
 # Fit the model
@@ -1355,8 +1419,35 @@ DA1.conf.mat <- confusionMatrix(DA1.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA1.conf.mat, titleaddon = 'Discriminant Analysis')
 
 # Evaluating LDA
-# doesn't work
-# klaR::partimat(diagnosis~., data = ORIGINAL.DA.train, method="lda", plot.matrix = FALSE)
+# not run because it plots a lot of graphs
+# partimat(diagnosis~., data = data.frame(ORIGINAL.DA.train), method="lda", mar=c(0.5, 0.5, 0.5, 0.5))
+```
+
+```{r lda variable selection}
+library(klaR)
+modelstepL <- stepclass(diagnosis ~ ., "lda", direction = "backward", data = data.frame(ORIGINAL.DA.train))
+
+DA1.sel <- lda(diagnosis ~ radius_mean + texture_mean + perimeter_mean + area_mean + 
+    smoothness_mean + compactness_mean + concavity_mean + `concave points_mean` + 
+    symmetry_mean + fractal_dimension_mean + radius_se + texture_se + 
+    perimeter_se + area_se + smoothness_se + compactness_se + 
+    concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + 
+    texture_worst + perimeter_worst + area_worst + smoothness_worst + 
+    compactness_worst + concavity_worst + `concave points_worst` + 
+    symmetry_worst + fractal_dimension_worst, data = ORIGINAL.DA.train)
+
+# Make predictions
+predictions.sel <- predict(DA1.sel, ORIGINAL.DA.valid)
+
+# predictions prob
+DA1.sel.pred.valid.prob <- predictions.sel$posterior[,2]
+
+# predictions response 
+DA1.sel.pred.valid.resp <- factor(predictions.sel$class)
+
+# confusion matrix
+DA1.sel.conf.mat <- confusionMatrix(DA1.sel.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA1.sel.conf.mat, titleaddon = 'Discriminant Analysis')
 ```
 
 If bad -> Correlation in data -> qda continuing with it. If not continue with lda
@@ -1365,7 +1456,7 @@ If bad -> Correlation in data -> qda continuing with it. If not continue with ld
 set.seed(1)
 
 # Fit the model
-DA2 <- qda(diagnosis~., data = ORIGINAL.DA.train)
+DA2 <- qda(diagnosis ~., data = ORIGINAL.DA.train)
 
 # Make predictions
 predictions <- predict(DA2, ORIGINAL.DA.valid)
@@ -1381,30 +1472,30 @@ DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA2.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
-Doesn't get better... lets continue with lda
+```{r qda selection}
+modelstepL <- stepclass(diagnosis ~ ., "qda", direction = "backward", data = data.frame(ORIGINAL.DA.train))
 
-We see different proportions -> need to refit model with cost to proportion 
-
-```{r lda different proportions}
-prior = DA1$prior
-
-# Fit the model
-DA3 <- lda(diagnosis~., data = ORIGINAL.DA.train, prior = prior)
+DA2.sel <- qda(diagnosis ~ radius_mean + texture_mean + compactness_mean + concavity_mean + 
+    `concave points_mean` + symmetry_mean + fractal_dimension_mean + 
+    radius_se + texture_se + perimeter_se + area_se + compactness_se + 
+    concavity_se + `concave points_se` + symmetry_se + fractal_dimension_se + 
+    radius_worst + texture_worst + area_worst + smoothness_worst + 
+    compactness_worst + `concave points_worst` + symmetry_worst + 
+    fractal_dimension_worst, data = ORIGINAL.DA.train)
 
 # Make predictions
-predictions <- predict(DA3, ORIGINAL.DA.valid)
+predictions <- predict(DA2.sel, ORIGINAL.DA.valid)
 
 # predictions prob
-DA3.pred.valid.prob <- predictions$posterior[,2]
+DA2.sel.pred.valid.prob <- predictions$posterior[,2]
 
 # predictions response 
-DA3.pred.valid.resp <- factor(predictions$class)
+DA2.sel.pred.valid.resp <- factor(predictions$class)
 
 # confusion matrix
-DA3.conf.mat <- confusionMatrix(DA3.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
-draw_confusion_matrix(DA3.conf.mat, titleaddon = 'Discriminant Analsis with priors')
+DA2.sel.conf.mat <- confusionMatrix(DA2.sel.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA2.sel.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
-Gives back same model as without prior -> function already does it.
 
 Try mda
 
@@ -1446,6 +1537,27 @@ draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Flexible discriminant analysis
 
 highest sensitivity is for qda --> sensitivity is important in this case. 
 
+```{r DA Best Model}
+
+# Confusion Best
+Best_DA_Confusion <- DA2.conf.mat
+
+# Predictions Best
+Best_DA_Predictions_Dummy <- DA2.pred.valid.resp
+Best_DA_Predictions_Dummy <- factor(Best_DA_Predictions_Dummy)
+
+Best_DA_Predictions_Probabilities <- DA2.pred.valid.prob
+
+
+# Best Predictions as Data frame
+DF_Best_DA_Predictions <- data.frame(Best_DA_Predictions_Dummy, Best_DA_Predictions_Probabilities) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_DA_Confusion <- data.frame(c(Best_DA_Confusion$byClass[c(1,2)], Best_DA_Confusion$overall[1]))
+colnames(DF_Best_DA_Confusion) <- "Best DA"
+DF_Best_DA_Confusion <- t(DF_Best_DA_Confusion) # FINAL CONFUSION DATAFRAME
+
+```
 
 We can skip this stuff. Talked with others thex didn't do this stuff... especially because our lda / qda works fine. Could potentially run qda with minimal predictors from logistic regression as they work kinda similar. 
 
@@ -1572,7 +1684,12 @@ DF_Best_Logistic_Predictions[,1] <- as.numeric(as.character(DF_Best_Logistic_Pre
 DF_Best_Logistic_Predictions[,2] <- as.numeric(DF_Best_Logistic_Predictions[,2])
 
 # Best K-Nearest Neighbor
+DF_Best_KNN_Predictions
+DF_Best_KNN_Confusion
 
+# As Numeric
+DF_Best_KNN_Predictions[,1] <- as.numeric(as.character(DF_Best_KNN_Predictions[,1]))
+DF_Best_KNN_Predictions[,2] <- as.numeric(DF_Best_KNN_Predictions[,2])
 
 # Best Boosting Trees
 DF_best_boosted_pred
@@ -1582,10 +1699,13 @@ DF_best_boosted_confusion
 DF_best_boosted_pred[,1] <- as.numeric(as.character(DF_best_boosted_pred[,1]))
 DF_best_boosted_pred[,2] <- as.numeric(DF_best_boosted_pred[,2])
 
-
 # Discriminant Analysis
+DF_Best_DA_Predictions 
+DF_Best_DA_Confusion
 
-
+# As Numeric
+DF_Best_DA_Predictions[,1] <- as.numeric(as.character(DF_Best_DA_Predictions[,1]))
+DF_Best_DA_Predictions[,2] <- as.numeric(DF_Best_DA_Predictions[,2])
 
 # Best Neural Network
 DF_Best_Neural_Network_Predictions
@@ -2096,4 +2216,6 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 
 [Breast Cancer: Stages - Cancer.Net](https://www.cancer.net/cancer-types/breast-cancer/stages)
 
+[Classification: LDA and QDA Approaches](https://pages.mtu.edu/~shanem/psy5220/daily/Day12/classification.html#:~:text=Variable%20Selection%20in%20LDA,-We%20now%20have&text=The%20best%20models%20have%201,the%20cross%2Dvalidation%20is%20initialized.)
 
+[Discriminant Analysis Essentials in R](http://www.sthda.com/english/articles/36-classification-methods-essentials/146-discriminant-analysis-essentials-in-r/)
