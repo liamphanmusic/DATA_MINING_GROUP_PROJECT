@@ -1456,7 +1456,9 @@ Some predictors unimportant -> remove some
 
 ## Ensemble Methods
 
-### bagging
+### 5 best models
+
+### Bagging
 
 ```{r}
 set.seed(1)
@@ -1468,7 +1470,7 @@ draw_confusion_matrix(bag_cf)
 ```
 
 
-### boosting
+### Boosting
 
 ```{r}
 set.seed(1)
