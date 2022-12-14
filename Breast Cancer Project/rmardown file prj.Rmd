@@ -53,6 +53,7 @@ library(nnet) # Neural network
 library(factoextra) # K-Means Clustering
 library(ggpubr) # ggplot addons
 library(GGally) # pairs plots
+library (naniar)
 
 ```
 
@@ -128,6 +129,11 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 
 
 ## Missing values
+
+```{r}
+gg_miss_var(ORIGINAL) + ggtitle("NAs")
+```
+
 
 ## Distribution of Data
 
