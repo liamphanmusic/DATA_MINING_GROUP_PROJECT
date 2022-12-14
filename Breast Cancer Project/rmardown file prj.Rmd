@@ -57,6 +57,7 @@ library (naniar)
 
 ```
 
+
 ```{r Confusion Matrix Function (See in References)}
 
 # Confusion matrix
@@ -930,6 +931,7 @@ KNN2.conf.mat.test <- confusionMatrix(KNN2.pred.test.resp, ORIGINAL.KNN.test$dia
 draw_confusion_matrix(KNN2.conf.mat.test, titleaddon = 'KNN test')
 ```
 
+
 ```{r KNN Best Model}
 
 # Confusion Best
@@ -1557,6 +1559,7 @@ DF_Best_DA_Confusion <- data.frame(c(Best_DA_Confusion$byClass[c(1,2)], Best_DA_
 colnames(DF_Best_DA_Confusion) <- "Best DA"
 DF_Best_DA_Confusion <- t(DF_Best_DA_Confusion) # FINAL CONFUSION DATAFRAME
 
+
 ```
 
 We can skip this stuff. Talked with others thex didn't do this stuff... especially because our lda / qda works fine. Could potentially run qda with minimal predictors from logistic regression as they work kinda similar. 
@@ -1723,19 +1726,19 @@ DF_Best_Neural_Network_Predictions[,2] <- as.numeric(DF_Best_Neural_Network_Pred
 ```{r Majority Vote}
 
 
-Majority_DF <- data.frame(DF_Best_Logistic_Predictions[,1], DF_best_boosted_pred[,1], DF_Best_Neural_Network_Predictions[,1])
+Majority_DF <- data.frame(DF_Best_Logistic_Predictions[,1], DF_Best_KNN_Predictions[,1], DF_best_boosted_pred[,1], DF_Best_DA_Predictions[,1], DF_Best_Neural_Network_Predictions[,1])
 
 for(i in 1:nrow(Majority_DF)){
-  if(sum(Majority_DF[i,1] + Majority_DF[i,2] + Majority_DF[i,3])/3 > 0.5){
-    Majority_DF[i,4] = 1
-    }else{Majority_DF[i,4] = 0}
+  if(sum(Majority_DF[i,1] + Majority_DF[i,2] + Majority_DF[i,3] + Majority_DF[i,4] + Majority_DF[i,5])/5 > 0.5){
+    Majority_DF[i,6] = 1
+    }else{Majority_DF[i,6] = 0}
 }
 
-colnames(Majority_DF) <- c("Logistic Regression", "Boosted Trees","Neural Network","Majority Vote")
+colnames(Majority_DF) <- c("Logistic Regression","K-Nearest Neighbor", "Boosted Trees","Discriminant Analysis", "Neural Network","Majority Vote")
 
 Majority_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
 
-DT::datatable(Majority_DF, caption = "Majority of Votes") 
+DT::datatable(Majority_DF, caption = "Best 5 Models on Valildation - Majority of Votes") 
 
 ```
 
@@ -1744,19 +1747,19 @@ DT::datatable(Majority_DF, caption = "Majority of Votes")
 
 ```{r Average of Models Probabilities}
 
-Average_DF <- data.frame(DF_Best_Logistic_Predictions[,2], DF_best_boosted_pred[,2], DF_Best_Neural_Network_Predictions[,2])
+Average_DF <- data.frame(DF_Best_Logistic_Predictions[,2], DF_Best_KNN_Predictions[,2], DF_best_boosted_pred[,2], DF_Best_DA_Predictions[,2], DF_Best_Neural_Network_Predictions[,2])
 
 for(i in 1:nrow(Average_DF)){
-  Average_DF[i,4] <- sum(Average_DF[i,1] + Average_DF[i,2] + Average_DF[i,3])/3
+  Average_DF[i,6] <- sum(Average_DF[i,1] + Average_DF[i,2] + Average_DF[i,3] + Average_DF[i,4] + Average_DF[i,5])/5
 }
 
-colnames(Average_DF) <- c("Logistic Regression", "Boosted Trees","Neural Network","Average")
+colnames(Average_DF) <- c("Logistic Regression","K-Nearest Neighbor", "Boosted Trees","Discriminant Analysis", "Neural Network","Average")
 
-Average_DF$'Average Dummy' <- ifelse(Average_DF$`Average`>0.5,1,0)
+Average_DF$'Average Cutoff 0.5' <- ifelse(Average_DF$`Average`>0.5,1,0)
 
 Average_DF$'Validation Actual' <- as.numeric(as.character(Validation$diagnosis))
 
-DT::datatable(Average_DF, caption = "Average of Models Probabilities") 
+DT::datatable(round(Average_DF,4), caption = "Best 5 Models on Validation - Average of Probabilities") 
 
 ```
 
