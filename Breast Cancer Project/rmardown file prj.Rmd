@@ -798,10 +798,10 @@ Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy pre
 ```{r}
 
 #ROC curve
-response <- data.frame(Validation_M[,1], pruned_pred)
-response[,1]<- as.numeric(as.character(response[,1]))
-response$pruned_pred<- as.numeric(as.character(response$pruned_pred))
-roc_score <- roc(data= response , response=diagnosis, pruned_pred) #AUC score
+ROC_df <- data.frame(Validation_M[,1], pruned_pred)
+ROC_df[,1]<- as.numeric(as.character(ROC_df[,1]))
+ROC_df$pruned_pred<- as.numeric(as.character(ROC_df$pruned_pred))
+roc_score <- roc(data= ROC_df , response=Validation_M...1., pruned_pred) #AUC score
 plot(roc_score ,main ="ROC curve")
 
 
