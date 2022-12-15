@@ -1349,27 +1349,10 @@ DF_Best_Neural_Confusion <- t(DF_Best_Neural_Confusion) # FINAL CONFUSION DATAFR
 
 ## Discriminant Analysis
 
-First we run a linear discriminant analysis.
-
-First data prep before model -> center / scale, 
+To run discriminant analysis the data needs to be centered and scaled. As again otherwise larger values might have abigger influence.  
 
 ```{r DA data prep}
 set.seed(1)
-
-# without outliers
-# ORIGINAL.DA.WOO <- tibble::tibble(ORIGINAL.DA)
-# 
-# library(tidyverse)
-# 
-# ORIGINAL.DA.WOO <- ORIGINAL.DA.WOO %>%
-#   dplyr::select(-c(diagnosis)) %>%
-#   gather(key, value) %>%
-#   group_by(key) %>%
-#   mutate(q95 = quantile(value, 0.95), row = row_number()) %>%
-#   filter(value <= q95) %>%
-#   dplyr::select(-q95) %>%
-#   spread(key, value) %>%
-#   dplyr::select(-row)
                                    
 # partition
 ORIGINAL.DA.train <- dplyr::select(Training, -c(id))
@@ -1383,7 +1366,7 @@ ORIGINAL.DA.valid <- predict(norm.value, ORIGINAL.DA.valid)
 ORIGINAL.DA.test <- predict(norm.value, ORIGINAL.DA.test)
 ```
 
-try with lda
+First we run a linear discriminant analysis. 
 
 ```{r lda}
 set.seed(1)
@@ -1409,8 +1392,10 @@ draw_confusion_matrix(DA1.conf.mat, titleaddon = 'Discriminant Analysis')
 # partimat(diagnosis~., data = data.frame(ORIGINAL.DA.train), method="lda", mar=c(0.5, 0.5, 0.5, 0.5))
 ```
 
+Not a bad model but again it lacks sensitivity. As the model is quite big we can try a variable selection. 
+
 ```{r lda variable selection}
-library(klaR)
+set.seed(1)
 modelstepL <- stepclass(diagnosis ~ ., "lda", direction = "backward", data = data.frame(ORIGINAL.DA.train))
 
 DA1.sel <- lda(diagnosis ~ radius_mean + texture_mean + perimeter_mean + area_mean + 
@@ -1436,7 +1421,9 @@ DA1.sel.conf.mat <- confusionMatrix(DA1.sel.pred.valid.resp, ORIGINAL.DA.valid$d
 draw_confusion_matrix(DA1.sel.conf.mat, titleaddon = 'Discriminant Analysis')
 ```
 
-If bad -> Correlation in data -> qda continuing with it. If not continue with lda
+We see that the model only drops one variable and the predictive power of the model doesn't change much as instead of 1 false positive and 7 false negatives there are now 0 false positives and 8 false negatives. 
+
+As we have seen in the data anaylsis there is some correlation in the data why we can try to run a quadratic discriminant analysis. 
 
 ```{r qda}
 set.seed(1)
@@ -1458,7 +1445,10 @@ DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA2.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
+Overall this model is worse than the lda but i case of sensitivtiy it is better as there are only 4 false negatives. 
+
 ```{r qda selection}
+set.seed(1)
 modelstepL <- stepclass(diagnosis ~ ., "qda", direction = "backward", data = data.frame(ORIGINAL.DA.train))
 
 DA2.sel <- qda(diagnosis ~ radius_mean + texture_mean + compactness_mean + concavity_mean + 
@@ -1483,7 +1473,9 @@ DA2.sel.conf.mat <- confusionMatrix(DA2.sel.pred.valid.resp, ORIGINAL.DA.valid$d
 draw_confusion_matrix(DA2.sel.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
-Try mda
+This time around 6 variables were dropped but we see that the model is not better than the qda with all predictors. 
+
+There are several more discriminant analysis methods that can be applied. Down below we tried Mixture discriminant analysis (MDA) which often outperforms QDA and LDA because the assumptions for the distributions of the classes are loser than for lda and qda. 
 
 ```{r mda}
 set.seed(1)
@@ -1502,7 +1494,9 @@ DA4.conf.mat <- confusionMatrix(DA4.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA4.conf.mat, 'Mixture discriminant analysis')
 ```
 
-try fda
+We see that this method in general works better than the lda and qda. In this case we don't proceed with this model as it isn't better in sensitivity which is what we want when predicting cancer. 
+
+Down below we run a flexible discriminant analysis (fda) which is an extension of lda using non-linear combinations of predictors (splines) 
 
 ```{r fda}
 set.seed(1)
@@ -1521,7 +1515,30 @@ DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Flexible discriminant analysis')
 ```
 
-highest sensitivity is for qda --> sensitivity is important in this case. 
+We see that the model has a good accuracy but isn't good in sensitivity. Therefore we don't use it further. 
+
+Lastly we fit a regularized discriminant analysis (RDA) which is a trade off between qda and lda. 
+
+```{r rda}
+set.seed(1)
+
+# Fit the model
+DA5 <- rda(diagnosis~., data = data.frame(ORIGINAL.DA.train))
+
+# predictions prob
+DA5.pred.valid.prob <- predict(DA5, data.frame(ORIGINAL.DA.valid))$posterior[,2]
+
+# predictions response 
+DA5.pred.valid.resp <- factor(ifelse(DA5.pred.valid.prob > 0.5, 1, 0))
+
+# confusion matrix
+DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis, positive = "1")
+draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Regularized discriminant analysis')
+```
+
+This model isn't better than any other model therefore we don't use it further. 
+
+As we have seen the highest sensitvity was in qda with acceptable accuracy we chose this model as the best one. 
 
 ```{r DA Best Model}
 
@@ -1545,23 +1562,6 @@ DF_Best_DA_Confusion <- t(DF_Best_DA_Confusion) # FINAL CONFUSION DATAFRAME
 
 
 ```
-
-We can skip this stuff. Talked with others thex didn't do this stuff... especially because our lda / qda works fine. Could potentially run qda with minimal predictors from logistic regression as they work kinda similar. 
-
-
-
-we know missclassification bad -> cost for misclassification model
-
-3rd model
-
-We see that outliers make it bad -> remove some rows
-
-4th model
-
-Some predictors unimportant -> remove some
-
-5th model
-
 
 ## Ensemble Methods
 

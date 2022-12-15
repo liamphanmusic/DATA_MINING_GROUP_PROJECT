@@ -1,0 +1,14 @@
+# without outliers
+# ORIGINAL.DA.WOO - tibbletibble(ORIGINAL.DA)
+# 
+# library(tidyverse)
+# 
+# ORIGINAL.DA.WOO - ORIGINAL.DA.WOO %%
+#   dplyrselect(-c(diagnosis)) %%
+#   gather(key, value) %%
+#   group_by(key) %%
+#   mutate(q95 = quantile(value, 0.95), row = row_number()) %%
+#   filter(value = q95) %%
+#   dplyrselect(-q95) %%
+#   spread(key, value) %%
+#   dplyrselect(-row)
