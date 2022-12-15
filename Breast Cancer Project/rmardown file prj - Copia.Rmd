@@ -810,6 +810,8 @@ plot(roc_score ,main ="ROC curve")
 
 ## K-Nearest Neighbor
 
+As K nearest neighbour is based on distances the predictors need to be standardized such that they have a mean at 0 and a variance equal to 1. This necessity of standardizinh is due to the fact that otherwise variables with bigger values have more influence on the distance that is being calculated. 
+
 ```{r data prep knn}
 
 # partition
@@ -825,14 +827,14 @@ ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
 
 ```
 
-get best k 
+To get the best k one might iterate over severall k and choose the one which has the highest value for the metric that is being looked at. In this case we looked at either accuracy or sensitivity. 
 
 ```{r knn best k}
 
 set.seed(1)
 
 accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
-sensitivity.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
+sensitivity.df <- data.frame(k = seq(1, 30, 1), sensitivtiy = rep(0, 30))
 
 
 # iterating over different ks
@@ -865,14 +867,14 @@ ggplot(accuracy.df) +
  theme_minimal()
 
 ggplot(sensitivity.df) +
- aes(x = k, y = accuracy) +
+ aes(x = k, y = sensitivtiy) +
  geom_line(size = 0.7, colour = "#112646") +
  labs(x = "Number of k nearest neighbours", 
- y = "Accuracy", title = "Accuracy regarding k") +
+ y = "Sensitivtiy", title = "Sensitivity regarding k") +
  theme_minimal()
 ```
 
-best k with accuracy and not overfitted (second highest sensitivity) k=6
+From the output we can see that the best k is either a 6 or 1. For accuracy the best k is at 6 while for sensitivity it is at 1 with the second best being at 6. Down below the code for KNN with k=6 and k=1.
 
 ```{r best knn k equal 6}
 
@@ -888,21 +890,12 @@ KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagn
 
 # Confusionmatrix Validation
 KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
-draw_confusion_matrix(KNN1.conf.mat, titleaddon = "KNN")
+draw_confusion_matrix(KNN1.conf.mat, titleaddon = "KNN with k=6")
 ```
 
-```{r best knn k equal 6 test}
-# predictions response 
-KNN1.pred.test.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
+When looking at the output we see that 6 nearest neighbors doesn't deliver a bad model but it lacks sensitivity which is very important in the case of classifying cancer. 
 
-# predictions prob 
-KNN1.pred.test.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "prob")[,2]
-# Confusionmatrix Test
-KNN1.conf.mat.test <- confusionMatrix(KNN1.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
-draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = "KNN test")
-```
-
-highest sensitivity at k=1 --> overfitted
+Here we see the model with 1 nearest neighbor. 
 
 ```{r best knn in relativity to sensitivity k equal 1}
 set.seed(1)
@@ -920,17 +913,9 @@ KNN2.conf.mat <- confusionMatrix(KNN2.pred.valid.resp, ORIGINAL.KNN.valid$diagno
 draw_confusion_matrix(KNN2.conf.mat, titleaddon = 'KNN')
 ```
 
-```{r best knn in relativity to sensitivity k equal 1 test}
-# predictions response 
-KNN2.pred.test.resp <- predict(KNN2, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
+We see that this model with 1 nearest neighbor is overall a little better than the model with k equal to 6 and is better in sensitivity. But we will not continue with this model as it isn't much better than the one with k equal to 6 and in KNN only one neighbor implies overfitting. As we do not want to run this risk we continue with k equal to 6. 
 
-# predictions prob 
-KNN2.pred.test.prob <- predict(KNN2, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "prob")[,2]
-# Confusionmatrix Test
-KNN2.conf.mat.test <- confusionMatrix(KNN2.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
-draw_confusion_matrix(KNN2.conf.mat.test, titleaddon = 'KNN test')
-```
-
+Down below we print out again the best model. 
 
 ```{r KNN Best Model}
 
@@ -951,7 +936,6 @@ DF_Best_KNN_Predictions <- data.frame(Best_KNN_Predictions_Dummy, Best_KNN_Predi
 DF_Best_KNN_Confusion <- data.frame(c(Best_KNN_Confusion$byClass[c(1,2)], Best_KNN_Confusion$overall[1]))
 colnames(DF_Best_KNN_Confusion) <- "Best KNN"
 DF_Best_KNN_Confusion <- t(DF_Best_KNN_Confusion) # FINAL CONFUSION DATAFRAME
-
 ```
 
 ## Neural Networks
@@ -1365,7 +1349,7 @@ DF_Best_Neural_Confusion <- t(DF_Best_Neural_Confusion) # FINAL CONFUSION DATAFR
 
 ## Discriminant Analysis
 
-First I just run a discriminant analysis.
+First we run a linear discriminant analysis.
 
 First data prep before model -> center / scale, 
 
