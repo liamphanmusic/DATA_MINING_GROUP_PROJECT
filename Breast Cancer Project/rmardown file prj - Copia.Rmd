@@ -1764,7 +1764,24 @@ DT::datatable(round(Average_DF,4), caption = "Best 5 Models on Validation - Aver
 ```
 
 
+
+
 ## Comparision of Models
+
+```{r}
+
+# Majority vote Confusion Matrix
+Majority_factor <- data.frame(as.factor(Majority_DF[,6]), as.factor(Majority_DF[,7])) 
+Majority_confusion <- confusionMatrix(Majority_factor[,1], Majority_factor[,2], positive = "1")
+draw_confusion_matrix(Majority_confusion)
+
+# Average Confusion Matrix
+Average_factor <- data.frame(as.factor(Average_DF[,7]), as.factor(Average_DF[,8])) 
+Average_confusion <- confusionMatrix(Average_factor[,1], Average_factor[,2], positive = "1")
+draw_confusion_matrix(Average_confusion)
+
+```
+Comments: the Average seems to be better in Accuracy and Sensitivity.
 
 # Unsupervised Learning
 
