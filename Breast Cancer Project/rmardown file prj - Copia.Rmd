@@ -835,7 +835,7 @@ accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
 sensitivity.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
 
 
-# iterating over different k's
+# iterating over different ks
 for(i in 1:30){
   # nearest neighbor
   KNN1 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = i)
@@ -856,7 +856,7 @@ for(i in 1:30){
 datatable(accuracy.df)
 datatable(sensitivity.df)
 
-# plot the k's 
+# plot the ks 
 ggplot(accuracy.df) +
  aes(x = k, y = accuracy) +
  geom_line(size = 0.7, colour = "#112646") +
@@ -888,7 +888,7 @@ KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagn
 
 # Confusionmatrix Validation
 KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")
-draw_confusion_matrix(KNN1.conf.mat, titleaddon = 'KNN')
+draw_confusion_matrix(KNN1.conf.mat, titleaddon = "KNN")
 ```
 
 ```{r best knn k=6 test}
@@ -899,7 +899,7 @@ KNN1.pred.test.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnos
 KNN1.pred.test.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "prob")[,2]
 # Confusionmatrix Test
 KNN1.conf.mat.test <- confusionMatrix(KNN1.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
-draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = 'KNN test')
+draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = "KNN test")
 ```
 
 highest sensitivity at k=1 --> overfitted
