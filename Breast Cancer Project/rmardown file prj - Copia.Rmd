@@ -874,7 +874,7 @@ ggplot(sensitivity.df) +
 
 best k with accuracy and not overfitted (second highest sensitivity) k=6
 
-```{r best knn k=6}
+```{r best knn k equal 6}
 
 set.seed(1)
 # nearest neighbor
@@ -891,7 +891,7 @@ KNN1.conf.mat <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagno
 draw_confusion_matrix(KNN1.conf.mat, titleaddon = "KNN")
 ```
 
-```{r best knn k=6 test}
+```{r best knn k equal 6 test}
 # predictions response 
 KNN1.pred.test.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
 
@@ -904,7 +904,7 @@ draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = "KNN test")
 
 highest sensitivity at k=1 --> overfitted
 
-```{r best knn in relativity to sensitivity k=1}
+```{r best knn in relativity to sensitivity k equal 1}
 set.seed(1)
 # nearest neighbor
 KNN2 <- knn3(y = ORIGINAL.KNN.train$diagnosis, x = dplyr::select(ORIGINAL.KNN.train, -c(diagnosis)), k = 1)
@@ -920,7 +920,7 @@ KNN2.conf.mat <- confusionMatrix(KNN2.pred.valid.resp, ORIGINAL.KNN.valid$diagno
 draw_confusion_matrix(KNN2.conf.mat, titleaddon = 'KNN')
 ```
 
-```{r best knn in relativity to sensitivity k=1 test}
+```{r best knn in relativity to sensitivity k equal 1 test}
 # predictions response 
 KNN2.pred.test.resp <- predict(KNN2, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
 
