@@ -715,7 +715,7 @@ DF_Best_Logistic_Confusion <- t(DF_Best_Logistic_Confusion) # FINAL CONFUSION DA
 
 ```{r  Classification Tree 1}
 
-#Re-anme teh partitions in the data
+#Re-name the partitions in the data
 Training_M <- Training
 Validation_M <- Validation
 Test_M <- Test
