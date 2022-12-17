@@ -839,9 +839,7 @@ To get the best k one might iterate over severall k and choose the one which has
 
 set.seed(1)
 
-accuracy.df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30))
-sensitivity.df <- data.frame(k = seq(1, 30, 1), sensitivtiy = rep(0, 30))
-
+df <- data.frame(k = seq(1, 30, 1), accuracy = rep(0, 30), sensitivity = rep(0, 30))
 
 # iterating over different ks
 for(i in 1:30){
@@ -855,14 +853,20 @@ for(i in 1:30){
   KNN1.pred.valid.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.valid, -c(diagnosis)), type = "prob")[,2]
   
   # Confusionmatrix
-  sensitivity.df[i, 2] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$byClass[1]
-  accuracy.df[i, 2] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$overall[1]
+  df$sensitivity[i] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$byClass[1]
+  df$accuracy[i] <- confusionMatrix(KNN1.pred.valid.resp, ORIGINAL.KNN.valid$diagnosis, positive = "1")$overall[1]
 
 }
 
-# table in markdown
-datatable(accuracy.df)
-datatable(sensitivity.df)
+ggplot(df, aes(x=k)) + 
+  geom_line(aes(y = sensitivity, colour = "Sensitivity")) + 
+  geom_line(aes(y = accuracy, colour = "Accuracy")) + 
+  labs(x = "Number of k nearest neighbours", 
+       y = "Accuracy / Sensitivity", title = "Accuracy / Sensitivity regarding k") +
+  theme_minimal() + 
+  scale_y_continuous(name = "Sensitivity / Accuracy", limits = c(0.7, 1)) +
+    scale_color_manual(name = "Values", values = c("Sensitivity" = "darkblue", "Accuracy" = "red")) + 
+  xlim (1, 30)
 
 # plot the ks 
 ggplot(accuracy.df) +
