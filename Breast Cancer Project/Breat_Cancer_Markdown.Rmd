@@ -864,6 +864,7 @@ for(i in 1:30){
 
 }
 
+# plot the k's
 ggplot(df, aes(x=k)) + 
   geom_line(aes(y = sensitivity, colour = "Sensitivity")) + 
   geom_line(aes(y = accuracy, colour = "Accuracy")) + 
@@ -873,21 +874,6 @@ ggplot(df, aes(x=k)) +
   scale_y_continuous(name = "Sensitivity / Accuracy", limits = c(0.7, 1)) +
     scale_color_manual(name = "Values", values = c("Sensitivity" = "darkblue", "Accuracy" = "red")) + 
   xlim (1, 30)
-
-# plot the ks 
-ggplot(accuracy.df) +
- aes(x = k, y = accuracy) +
- geom_line(size = 0.7, colour = "#112646") +
- labs(x = "Number of k nearest neighbours", 
- y = "Accuracy", title = "Accuracy regarding k") +
- theme_minimal()
-
-ggplot(sensitivity.df) +
- aes(x = k, y = sensitivtiy) +
- geom_line(size = 0.7, colour = "#112646") +
- labs(x = "Number of k nearest neighbours", 
- y = "Sensitivity", title = "Sensitivity regarding k") +
- theme_minimal()
 
 ```
 
