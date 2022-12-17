@@ -886,7 +886,7 @@ ggplot(sensitivity.df) +
  aes(x = k, y = sensitivtiy) +
  geom_line(size = 0.7, colour = "#112646") +
  labs(x = "Number of k nearest neighbours", 
- y = "Sensitivtiy", title = "Sensitivity regarding k") +
+ y = "Sensitivity", title = "Sensitivity regarding k") +
  theme_minimal()
 
 ```
