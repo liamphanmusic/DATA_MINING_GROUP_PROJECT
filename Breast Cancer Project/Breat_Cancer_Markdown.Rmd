@@ -437,7 +437,7 @@ summary(Logistic_Model_After_VIF1)
 
 ```
 
-> Comments: Even after removing 8 variables, our model still suffer from Convergence error, let's check our VIF again.
+> Comments: After removing 8 variables, our model still suffer multicolinearity since most variables are not significant, but now the model can converge, let's check our VIF again.
 
 
 #### Test For Multicolinearity in Our Dataset using VIF - Second Iteration
@@ -840,6 +840,7 @@ ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
 
 To get the best k one might iterate over severall k and choose the one which has the highest value for the metric that is being looked at. In this case we looked at either accuracy or sensitivity. 
 
+
 ```{r knn best k}
 
 set.seed(1)
@@ -887,6 +888,7 @@ ggplot(sensitivity.df) +
  labs(x = "Number of k nearest neighbours", 
  y = "Sensitivtiy", title = "Sensitivity regarding k") +
  theme_minimal()
+
 ```
 
 From the output we can see that the best k is either a 6 or 1. For accuracy the best k is at 6 while for sensitivity it is at 1 with the second best being at 6. Down below the code for KNN with k=6 and k=1.
