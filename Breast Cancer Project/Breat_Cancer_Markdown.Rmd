@@ -986,7 +986,8 @@ library(nnet)
 Neural_1 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=3, linear.output = FALSE)
 
 # Plot Neural Network Model 1
-(plot(Neural_1))
+Neural_1_Plot <- plot(Neural_1)
+Neural_1_Plot
 
 ```
 
@@ -1104,7 +1105,8 @@ library(devtools)
 Neural_2 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=15, linear.output = FALSE)
 
 # Plot Neural Network Model 2
-(plot(Neural_2))
+Neural_2_Plot <- plot(Neural_2)
+Neural_2_Plot
 
 ```
 
@@ -1234,7 +1236,8 @@ library(devtools)
 Neural_3 <- neuralnet(diagnosis ~ ., data = Training_NN_Preprocess, hidden=c(15,15), linear.output = FALSE)
 
 # Plot Neural Network Model 2
-(plot(Neural_3))
+Neural_3_Plot <- plot(Neural_3)
+Neural_3_Plot
 
 ```
 
