@@ -2,7 +2,13 @@
 title: "Breast Cancer Project"
 author: "Manuela Giansante, Liam Phan, Micheal Bigler"
 date: "2022-12-01"
-output: html_document
+output: 
+  rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
@@ -54,6 +60,7 @@ library(factoextra) # K-Means Clustering
 library(ggpubr) # ggplot addons
 library(GGally) # pairs plots
 library (naniar)
+library(rmdformats)
 
 ```
 
@@ -2229,3 +2236,5 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 [Classification: LDA and QDA Approaches](https://pages.mtu.edu/~shanem/psy5220/daily/Day12/classification.html#:~:text=Variable%20Selection%20in%20LDA,-We%20now%20have&text=The%20best%20models%20have%201,the%20cross%2Dvalidation%20is%20initialized.)
 
 [Discriminant Analysis Essentials in R](http://www.sthda.com/english/articles/36-classification-methods-essentials/146-discriminant-analysis-essentials-in-r/)
+
+[rmdformats](https://juba.github.io/rmdformats/)
