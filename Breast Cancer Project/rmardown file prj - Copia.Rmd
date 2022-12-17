@@ -1663,7 +1663,8 @@ DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 ```
 
 
-### Best 5 Models
+# Best Models
+## Best 5 Models - On Validation
 
 ```{r Best 5 Models amongst all, echo=FALSE}
 
@@ -1732,7 +1733,7 @@ DT::datatable(Majority_DF, caption = "Best 5 Models on Valildation - Majority of
 ```
 
 
-# Average of Models Probabilities
+### Average of Models Probabilities
 
 ```{r Average of Models Probabilities}
 
@@ -1755,9 +1756,9 @@ DT::datatable(round(Average_DF,4), caption = "Best 5 Models on Validation - Aver
 
 
 
-## Comparision of Models
+### Confusion Matrix for Majority and Average Probabilities
 
-```{r}
+```{r Confusion Matrix for Majority and Average Probabilities}
 
 # Majority vote Confusion Matrix
 Majority_factor <- data.frame(as.factor(Majority_DF[,6]), as.factor(Majority_DF[,7])) 
@@ -1770,7 +1771,16 @@ Average_confusion <- confusionMatrix(Average_factor[,1], Average_factor[,2], pos
 draw_confusion_matrix(Average_confusion)
 
 ```
-Comments: the Average seems to be better in Accuracy and Sensitivity.
+
+> Comments: the Average seems to be better in Accuracy and Sensitivity.
+
+## Best 3 Models - On Training
+
+```{r Best 3 Models amongst all, echo=FALSE}
+
+
+                                   
+```
 
 # Unsupervised Learning
 
