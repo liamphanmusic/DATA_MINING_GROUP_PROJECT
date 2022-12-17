@@ -158,7 +158,13 @@ ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(valu
 # histogram over all columns grouped by diagnosis
 ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(value, fill = factor(diagnosis))) + 
   geom_histogram(aes(y = ..density..), alpha = 0.6, position = "identity") + 
-  facet_wrap(~key, scales = 'free')
+  facet_wrap(~key, scales = 'free') + 
+  ggtitle("Histogram of predictors seperated by class") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  guides(fill=guide_legend(title="Diagnosis"))+
+  scale_fill_discrete(labels=c('benign', 'malignant'))
+
+
 ```
 
 ## Correlation
