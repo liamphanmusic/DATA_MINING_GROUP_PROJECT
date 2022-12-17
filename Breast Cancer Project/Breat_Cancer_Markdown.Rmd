@@ -1771,9 +1771,35 @@ Average_factor <- data.frame(as.factor(Average_DF[,7]), as.factor(Average_DF[,8]
 Average_confusion <- confusionMatrix(Average_factor[,1], Average_factor[,2], positive = "1")
 draw_confusion_matrix(Average_confusion)
 
+# Majority Confusion as Data frame
+DF_Majority_Confusion <- data.frame(c(Majority_confusion$byClass[c(1,2)], Majority_confusion$overall[1]))
+colnames(DF_Majority_Confusion) <- "Majority Vote"
+DF_Majority_Confusion <- t(DF_Majority_Confusion) # FINAL CONFUSION DATAFRAME
+
+# Average Confusion as Data frame
+DF_Average_Confusion <- data.frame(c(Average_confusion$byClass[c(1,2)], Average_confusion$overall[1]))
+colnames(DF_Average_Confusion) <- "Average Probabilities"
+DF_Average_Confusion <- t(DF_Average_Confusion) # FINAL CONFUSION DATAFRAME
+
 ```
 
-Comments: the Average seems to be better in Accuracy and Sensitivity.
+> Comments: the Average seems to be better in Accuracy and Sensitivity.
+
+### Table of All 7 Models - On Validation
+
+```{r Table of All 7 Models}
+
+TABLE_7_MODELS <- rbind(DF_Best_Logistic_Confusion, DF_Best_KNN_Confusion, DF_best_boosted_confusion, DF_Best_DA_Confusion, DF_Best_Neural_Confusion, DF_Majority_Confusion, DF_Average_Confusion)
+
+TABLE_7_MODELS <- as.data.frame(TABLE_7_MODELS)
+
+TABLE_7_MODELS <- TABLE_7_MODELS %>% arrange(-Sensitivity)
+
+DT::datatable(round(TABLE_7_MODELS,4), caption = "7 Models on Validation - Order by Sensitivity") 
+
+```
+
+> Comments: 3 Best Models according to both **Sensitivity** and **Accuracy** are: **Neural Network**, **DA** and **Average Probabilities** on Validation. 
 
 ## Best 3 Models - On Test
 
