@@ -1,6 +1,6 @@
 ---
 title: "Breast Cancer Project"
-author: "Manuela Giansante, Liam Phan, MIcheal Bingler"
+author: "Manuela Giansante, Liam Phan, Micheal Bigler"
 date: "2022-12-01"
 output: html_document
 ---
