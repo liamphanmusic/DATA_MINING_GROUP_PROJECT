@@ -151,14 +151,14 @@ ggplot(ORIGINAL.boxplot, aes(x = diagnosis, y = value)) +
   geom_boxplot()
 
 # histogram over all columns
-ggplot(gather(ORIGINAL, key, value, -diagnosis), aes(value)) + 
+ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(value)) + 
     geom_histogram(bins = 10) + 
-    facet_wrap(~key, scales = 'free_x')
+    facet_wrap(~key, scales = 'free')
 
 # histogram over all columns grouped by diagnosis
-ggplot(gather(ORIGINAL, key, value, -diagnosis), aes(value, fill = factor(diagnosis))) + 
+ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(value, fill = factor(diagnosis))) + 
   geom_histogram(aes(y = ..density..), alpha = 0.6, position = "identity") + 
-  facet_wrap(~key, scales = 'free_x')
+  facet_wrap(~key, scales = 'free')
 ```
 
 ## Correlation
