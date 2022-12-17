@@ -2,23 +2,28 @@
 title: "Breast Cancer Project"
 author: "Manuela Giansante, Liam Phan, Micheal Bigler"
 date: "2022-12-01"
-output: 
+output:  
   rmdformats::robobook:
     self_contained: true
     thumbnails: true
     lightbox: true
     gallery: false
     highlight: tango
+    code_folding: hide
+    
+    
 ---
 
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE,
-                      cache = TRUE)
+                      cache = TRUE,warning = FALSE, fig.align='center')
 
 rm(list = ls())
 
 ```
+
+# Libraries and Functions
 
 ```{r Libraries and functions, message=FALSE, warning= FALSE}
 
@@ -119,7 +124,6 @@ draw_confusion_matrix <- function(cm, titleaddon = '') {
 
 # Data Analysis
 
-
 ```{r Data Loading}
 
 ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
@@ -138,7 +142,7 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 
 ## Missing values
 
-```{r}
+```{r Missing Values Plot}
 gg_miss_var(ORIGINAL) + ggtitle("NAs")
 ```
 
@@ -176,7 +180,7 @@ ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(valu
 
 ## Correlation
 
-```{r corrplot, fig.height=10, fig.width=10}
+```{r corrplot, fig.height=16, fig.width=16}
 
 # Color Palette
 library("RColorBrewer")
@@ -236,12 +240,6 @@ ORIGINAL$diagnosis <- as.factor(ORIGINAL$diagnosis) # To Factor Variable
 
 ```
 
-
-## Standardization
-
-ORIGINAL
-ORIGINAL center scale
-ORIGINAL range
 
 ## Partitioning 
 
@@ -1671,9 +1669,11 @@ DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 ```
 
 
-### Best 5 Models
 
-```{r Best 5 Models amongst all, echo=FALSE}
+# Best Models
+## Best 5 Models - On Validation
+
+```{r Best 5 Models amongst all, results='hide'}
 
 # Best Logistic Regression
 DF_Best_Logistic_Predictions
@@ -1740,7 +1740,7 @@ DT::datatable(Majority_DF, caption = "Best 5 Models on Valildation - Majority of
 ```
 
 
-# Average of Models Probabilities
+### Average of Models Probabilities
 
 ```{r Average of Models Probabilities}
 
@@ -1762,10 +1762,9 @@ DT::datatable(round(Average_DF,4), caption = "Best 5 Models on Validation - Aver
 
 
 
+### Confusion Matrix of Majority and Average
 
-## Comparision of Models
-
-```{r}
+```{r Confusion Matrix of Majority and Average}
 
 # Majority vote Confusion Matrix
 Majority_factor <- data.frame(as.factor(Majority_DF[,6]), as.factor(Majority_DF[,7])) 
@@ -1778,7 +1777,19 @@ Average_confusion <- confusionMatrix(Average_factor[,1], Average_factor[,2], pos
 draw_confusion_matrix(Average_confusion)
 
 ```
+
 Comments: the Average seems to be better in Accuracy and Sensitivity.
+
+## Best 3 Models - On Test
+
+```{r Best 3 Models}
+
+
+
+
+
+```
+
 
 # Unsupervised Learning
 
@@ -2148,7 +2159,7 @@ annotate_figure(ggarrange2,
 
 > Comments: without having the full key pieces information for the staging systems from the American Cancer Society, we can already have some metrics for the **T** key which is the size of the tumor, but without the nearby areas. The dataset suggest that the measure are for primary tumors only. If we look at the **Cluster 1**, the **radius_mean** median seems to be higher than 2cm or 20mm but less than 5cm or 50mm. Thus we would attribute the **T2** key to this Cluster. **Cluster 2** in opposite is having an median close to 1.4cm or 14mm, since this is less than 2cm ro 20mm, we could attribute the key **T1** to this cluster. Nevertheless, we should remember that some member of Cluster 1 are less than 20mm, and thus we shouldn't categorize them as **T2** following the guidelines. For simplicity, we will keep those tumors in the Cluster 1 but if we wanted to decide or not wether a member is subject to **T2**, we should use other metrics to check the size exactitude before removing it to the **T2** label. 
 
-Cluster 2 with T1 could potential lead us to such Stages:
+Cluster 2 with **T1** could potential lead us to such Stages:
 
 > **Stage IA**: The tumor is small, invasive, and has not spread to the lymph nodes (**T1**, N0, M0). **Stage IB**: Cancer has spread to the lymph nodes and the cancer in the lymph node is larger than 0.2 mm but less than 2 mm in size. There is either no evidence of a tumor in the breast or the tumor in the breast is 20 mm or smaller (T0 or **T1**, N1mi, M0). **Stage IIIC**: A tumor of any size that has spread to 10 or more axillary lymph nodes, the internal mammary lymph nodes, and/or the lymph nodes under the collarbone. It has not spread to other parts of the body (any T, N3, M0). **Stage IV** (metastatic): The tumor can be any size and has spread to other organs, such as the bones, lungs, brain, liver, distant lymph nodes, or chest wall (any T, any N, M1). Metastatic cancer found when the cancer is first diagnosed occurs about 6% of the time. This may be called de novo metastatic breast cancer. Most commonly, metastatic breast cancer is found after a previous diagnosis of early stage breast cancer.
 
@@ -2158,7 +2169,11 @@ Cluster 1 with **T2** could potential lead us to such Stages:
 
 > Comments: We can see that we lack a lot of information to actually get to the actual stage of the cancerous breast tumors, depending on the source, we may lack 2 more information if we follow *Cancer.Net* staging system: **Node** (N - Has the tumor spread to the lymph nodes? If so, where, what size, and how many?) or **Metastasis** (M - Has the cancer spread to other parts of the body?). *The American Cancer Society* requires way more information, up to 7 in total plus additional recurrence test. Here is the 7 keys parameters: 
 
-[image](7 Keys.png)
+<center>
+
+![image](IMAGES/7Keys.png)
+
+</center>
 
 [Breast Cancer Stages - cancer.org](https://www.cancer.org/cancer/breast-cancer/understanding-a-breast-cancer-diagnosis/stages-of-breast-cancer.html)
 
@@ -2238,3 +2253,5 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 [Discriminant Analysis Essentials in R](http://www.sthda.com/english/articles/36-classification-methods-essentials/146-discriminant-analysis-essentials-in-r/)
 
 [rmdformats](https://juba.github.io/rmdformats/)
+
+[Confusion Plot Function](https://stackoverflow.com/questions/23891140/r-how-to-visualize-confusion-matrix-using-the-caret-package)
