@@ -1806,9 +1806,21 @@ DT::datatable(round(TABLE_7_MODELS,4), caption = "7 Models on Validation - Order
 
 ```{r Best 3 Models}
 
+# Boosted Trees prediction on Test set for Average Ensemble
+Boosted_Test_Pred<- predict(boosting, Test_M, type="class")
+Boosted_Test_Prob<- predict(boosting, Test_M, type="prob")
 
+# Confusion Matrix for Class predictions on Test set:
+Confusion_Test_Boosted<- confusionMatrix(as.factor(Boosted_Test_Pred$class), Test_M$diagnosis, positive = "1")
+draw_confusion_matrix(Confusion_Test_Boosted)
 
+# Prediction and probabilities data-frame
+DF_Test_boosted_pred <- data.frame(Boosted_Test_Pred$class,Boosted_Test_Prob$prob[,2])
 
+#table of Confusion matrix values
+DF_Test_Boosted_Confusion <- data.frame(c(Confusion_Test_Boosted$byClass[c(1,2)], Confusion_Test_Boosted$overall[1]))
+colnames(DF_Test_Boosted_Confusion) <- "Boosted Tree Model"
+DF_Test_Boosted_Confusion<- t(DF_Test_Boosted_Confusion)
 
 ```
 
