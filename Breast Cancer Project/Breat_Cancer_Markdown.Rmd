@@ -787,7 +787,9 @@ length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end 
 
 ```
 
-The fully grown tree is quite reduced in size, we still pruned the tree.
+The fully grown tree is quite reduced in size, still we proceed with the pruning. The Best Pruned tree has in total 5 end notes, obtained by selecting the minimum `xerror`.
+We also report the table of variables in importance.
+
 
 ### Performance of Best Pruned Tree
 
@@ -804,7 +806,7 @@ draw_confusion_matrix(tree_cf)
 
 ```
 
-Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy pretty high.
+Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy amounts to 0.906, which is expected for such a simple model.
 
 ```{r}
 
@@ -818,6 +820,7 @@ plot(roc_score ,main ="ROC curve")
 
 ```
 
+Specificity is higher than Sensitivity, the model performs better in the categorisation of benign cases.
 
 ## K-Nearest Neighbor
 
@@ -1605,6 +1608,7 @@ rf_cf <- confusionMatrix(as.factor(rf_pred), Validation_M$diagnosis, positive = 
 draw_confusion_matrix(rf_cf)
 ```
 
+The model performing best is the Boosted Trees model. They all provide improved classification capacity than the orginal Best Pruned Tree.
 
 ### ROC curves
 
@@ -1823,6 +1827,8 @@ colnames(DF_Test_Boosted_Confusion) <- "Boosted Tree Model"
 DF_Test_Boosted_Confusion<- t(DF_Test_Boosted_Confusion)
 
 ```
+
+The Accuracy Parameter is actually higher than then the one we observe from the prediction run on the Validation set, we also gain on sensitivity relative to Specificity.
 
 
 # Unsupervised Learning
