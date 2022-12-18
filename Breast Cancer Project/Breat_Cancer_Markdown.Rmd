@@ -1436,7 +1436,7 @@ set.seed(1)
 
 # Fit the model
 DA2 <- qda(diagnosis ~., data = ORIGINAL.DA.train)
-
+           
 # Make predictions
 predictions <- predict(DA2, ORIGINAL.DA.valid)
 
