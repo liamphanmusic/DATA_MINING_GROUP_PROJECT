@@ -1031,7 +1031,7 @@ We see that this model with 1 nearest neighbor is overall a little better than t
 
 Down below we print out again the best model. 
 
-```{r KNN Best Model}
+```{r KNN Best Model valid}
 
 # Confusion Best
 Best_KNN_Confusion <- KNN1.conf.mat
@@ -1050,6 +1050,39 @@ DF_Best_KNN_Predictions <- data.frame(Best_KNN_Predictions_Dummy, Best_KNN_Predi
 DF_Best_KNN_Confusion <- data.frame(c(Best_KNN_Confusion$byClass[c(1,2)], Best_KNN_Confusion$overall[1]))
 colnames(DF_Best_KNN_Confusion) <- "Best KNN"
 DF_Best_KNN_Confusion <- t(DF_Best_KNN_Confusion) # FINAL CONFUSION DATAFRAME
+```
+
+```{r KNN Best Model test}
+
+set.seed(1)
+
+# predictions response 
+KNN1.pred.test.resp <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "class")
+
+# predictions prob 
+KNN1.pred.test.prob <- predict(KNN1, dplyr::select(ORIGINAL.KNN.test, -c(diagnosis)), type = "prob")[,2]
+
+# Confusionmatrix Validation
+KNN1.conf.mat.test <- confusionMatrix(KNN1.pred.test.resp, ORIGINAL.KNN.test$diagnosis, positive = "1")
+draw_confusion_matrix(KNN1.conf.mat.test, titleaddon = "KNN for test data with k=6")
+
+# Confusion Best
+Best_KNN_Confusion_test <- KNN1.conf.mat.test
+
+# Predictions Best
+Best_KNN_Predictions_Dummy_test <- KNN1.pred.test.resp
+Best_KNN_Predictions_Dummy_test <- factor(Best_KNN_Predictions_Dummy_test)
+
+Best_KNN_Predictions_Probabilities_test <- KNN1.pred.test.prob
+
+
+# Best Predictions as Data frame
+DF_Best_KNN_Predictions_test <- data.frame(Best_KNN_Predictions_Dummy_test, Best_KNN_Predictions_Probabilities_test) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_KNN_Confusion_test <- data.frame(c(Best_KNN_Confusion_test$byClass[c(1,2)], Best_KNN_Confusion_test$overall[1]))
+colnames(DF_Best_KNN_Confusion_test) <- "Best KNN test"
+DF_Best_KNN_Confusion_test <- t(DF_Best_KNN_Confusion_test) # FINAL CONFUSION DATAFRAME
 ```
 
 ## Neural Networks
@@ -1767,7 +1800,7 @@ This model isn't better than any other model therefore we don't use it further.
 
 As we have seen the highest sensitvity was in qda with acceptable accuracy we chose this model as the best one. 
 
-```{r DA Best Model}
+```{r DA Best Model valid}
 
 # Confusion Best
 Best_DA_Confusion <- DA2.conf.mat
@@ -1787,6 +1820,42 @@ DF_Best_DA_Confusion <- data.frame(c(Best_DA_Confusion$byClass[c(1,2)], Best_DA_
 colnames(DF_Best_DA_Confusion) <- "Best DA"
 DF_Best_DA_Confusion <- t(DF_Best_DA_Confusion) # FINAL CONFUSION DATAFRAME
 
+```
+
+```{r DA Best Model test}
+
+set.seed(1)
+
+# Make predictions
+predictions <- predict(DA2, ORIGINAL.DA.test)
+
+# predictions prob
+DA2.pred.test.prob <- predictions$posterior[,2]
+
+# predictions response 
+DA2.pred.test.resp <- factor(predictions$class)
+
+# confusion matrix
+DA2.conf.mat.test <- confusionMatrix(DA2.pred.test.resp, ORIGINAL.DA.test$diagnosis, positive = "1")
+draw_confusion_matrix(DA2.conf.mat.test, titleaddon = 'Quadratic Discriminant Analysis')
+
+# Confusion Best
+Best_DA_Confusion_test <- DA2.conf.mat.test
+
+# Predictions Best
+Best_DA_Predictions_Dummy_test <- DA2.pred.test.resp
+Best_DA_Predictions_Dummy_test <- factor(Best_DA_Predictions_Dummy_test)
+
+Best_DA_Predictions_Probabilities_test <- DA2.pred.test.prob
+
+
+# Best Predictions as Data frame
+DF_Best_DA_Predictions_test <- data.frame(Best_DA_Predictions_Dummy_test, Best_DA_Predictions_Probabilities_test) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_DA_Confusion_test <- data.frame(c(Best_DA_Confusion_test$byClass[c(1,2)], Best_DA_Confusion_test$overall[1]))
+colnames(DF_Best_DA_Confusion_test) <- "Best DA test"
+DF_Best_DA_Confusion_test <- t(DF_Best_DA_Confusion_test) # FINAL CONFUSION DATAFRAME
 
 ```
 
