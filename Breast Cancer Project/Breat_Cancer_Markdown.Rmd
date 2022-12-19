@@ -1,7 +1,7 @@
 ---
 title: "Breast Cancer Project"
 author: "Manuela Giansante, Liam Phan, Micheal Bigler"
-date: "2022-12-01"
+date: "2022-12-19"
 output:  
   rmdformats::robobook:
     self_contained: true
@@ -289,10 +289,12 @@ set.seed(1)
 # Duplicate the Training and Validation Set
 Training_Logistic <- Training
 Validation_Logistic <- Validation
+Test_Logistic <- Test
 
 # Remove the "ID" Variable
 Training_Logistic <- Training_Logistic[,-c("id")]
 Validation_Logistic <- Validation_Logistic[,-c("id")]
+Test_Logistic <- Test_Logistic[,-c("id")]
 
 ```
 
@@ -699,9 +701,90 @@ abline(a = 0, b = 1)
 
 > Comments:
 
+#### Logistic Lasso Regression - Predictions and Confusion Matrix on Test
+
+```{r LR Predictions and Confusion Matrix Test}
+
+set.seed(1)
+
+# Predictions with LR
+Logistic_Lasso_Predictions_Test <- predict(Logistic_Model_After_VIF4, Test_Logistic[,c("area_mean", "smoothness_mean", "symmetry_mean", "smoothness_se", "concave points_se", "symmetry_se", "concave points_worst", "fractal_dimension_worst")], type = "response")
+
+# Rounding Predictions - 0.5 Threshold
+Logistic_Lasso_Predictions_Dummy_Test <- round(Logistic_Lasso_Predictions_Test)
+
+# As Numeric
+Logistic_Lasso_Predictions_Dummy_Test <- as.numeric(Logistic_Lasso_Predictions_Dummy_Test)
+
+# Check rounding in a Dataframe
+DF_Logistic_Lasso_Predictions_Test <- cbind(Logistic_Lasso_Predictions_Test, Logistic_Lasso_Predictions_Dummy_Test)
+
+# As Factor
+Logistic_Lasso_Predictions_Dummy_Test <- as.factor(Logistic_Lasso_Predictions_Dummy_Test)
+
+# Confusion Matrix
+Confusion_Matrix_Logistic_Lasso_Test <- confusionMatrix(data = Logistic_Lasso_Predictions_Dummy_Test, reference = Test_Logistic$diagnosis, positive = "1")
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Logistic_Lasso_Test <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Logistic Regression - Test', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Logistic_Lasso_Test(Confusion_Matrix_Logistic_Lasso_Test)
+
+```
+
+> Comments: 
+
+
 ### Best Logistic Regression
 
-```{r Logistic Regression Best Model}
+#### On Validation
+
+```{r Logistic Regression Best Model Validation}
 
 # Confusion Best
 Best_Logistic_Confusion <- Confusion_Matrix_Logistic_Lasso
@@ -721,6 +804,31 @@ colnames(DF_Best_Logistic_Confusion) <- "Best Logistic Lasso Regression"
 DF_Best_Logistic_Confusion <- t(DF_Best_Logistic_Confusion) # FINAL CONFUSION DATAFRAME
 
 ```
+
+ 
+#### On Test
+
+```{r Logistic Regression Best Model Test}
+
+# Confusion Best
+Best_Logistic_Confusion_Test <- Confusion_Matrix_Logistic_Lasso_Test
+
+# Predictions Best
+Best_Logistic_Predictions_Dummy_Test <- Logistic_Lasso_Predictions_Dummy_Test
+Best_Logistic_Predictions_Dummy_Test <- factor(Best_Logistic_Predictions_Dummy_Test)
+
+Best_Logistic_Predictions_Probabilities_Test <- Logistic_Lasso_Predictions_Test
+
+# Best Predictions as Data frame
+DF_Best_Logistic_Predictions_Test <- data.frame(Best_Logistic_Predictions_Dummy_Test, Best_Logistic_Predictions_Probabilities_Test) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_Logistic_Confusion_Test <- data.frame(c(Best_Logistic_Confusion_Test$byClass[c(1,2)], Best_Logistic_Confusion_Test$overall[1]))
+colnames(DF_Best_Logistic_Confusion_Test) <- "Best Logistic Lasso Regression"
+DF_Best_Logistic_Confusion_Test <- t(DF_Best_Logistic_Confusion_Test) # FINAL CONFUSION DATAFRAME
+
+```
+ 
  
 ## Classification Tree
 
@@ -1222,6 +1330,90 @@ abline(a = 0, b = 1)
 
 
 
+
+#### Confusion Matrix with Test
+
+<center>
+
+```{r Predictions and Confusion Matrix for NN 2}
+
+set.seed(1)
+
+# Predictions 
+Predictions_NN2_Test <- predict(Neural_2, Test_NN_Preprocess, type="response")
+Predictions_NN2_Probabilities_Test <- Predictions_NN2_Test[,2]
+
+# Rounding Predictions - 0.5 Threshold 
+Predictions_NN2_Dummy_Test <- round(Predictions_NN2_Probabilities_Test)
+
+# As Numeric
+Predictions_NN2_Dummy_Test <- as.numeric(Predictions_NN2_Dummy_Test)
+
+# Check rounding in a Dataframe
+DF_Neural_Predictions_2_Test <- cbind(Predictions_NN2_Probabilities_Test, Predictions_NN2_Dummy_Test)
+
+# As Factor
+Predictions_NN2_Dummy_Test <- factor(Predictions_NN2_Dummy_Test)
+Test_NN_Preprocess$diagnosis <- factor(Test_NN_Preprocess$diagnosis)
+
+# Confusion Matrix
+Confusion_Matrix_Neural_2_Test <- confusionMatrix(data = Predictions_NN2_Dummy_Test, reference = Test_NN_Preprocess$diagnosis, positive = "1")
+
+# Create the Function for Confusion Matrix
+draw_confusion_matrix_Neural_2_Test <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Neural Network - Model 2', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+
+# Plot the Confusion Matrix
+draw_confusion_matrix_Neural_2_Test(Confusion_Matrix_Neural_2_Test)
+
+```
+
+</center>
+
+
 ### Advanced Neural Network with 2 Hidden Layers of 15 Hidden Nodes - Model 3
 
 <center>
@@ -1335,7 +1527,9 @@ draw_confusion_matrix_Neural_3(Confusion_Matrix_Neural_3)
 
 ### Neural Network Best Model
 
-```{r Neural Network Best Model}
+#### Validation
+
+```{r Neural Network Best Model Validation}
 
 # Confusion Best
 Best_Neural_Network_Confusion <- Confusion_Matrix_Neural_2
@@ -1355,6 +1549,30 @@ colnames(DF_Best_Neural_Confusion) <- "Best Neural Network"
 DF_Best_Neural_Confusion <- t(DF_Best_Neural_Confusion) # FINAL CONFUSION DATAFRAME
 
 ```
+
+#### Test
+
+```{r Neural Network Best Model Test}
+
+# Confusion Best
+Best_Neural_Network_Confusion_Test <- Confusion_Matrix_Neural_2_Test
+
+# Predictions Best
+Best_Neural_Network_Predictions_Dummy_Test <- Predictions_NN2_Dummy_Test
+Best_Neural_Network_Predictions_Dummy_Test <- factor(Best_Neural_Network_Predictions_Dummy_Test)
+
+Best_Neural_Network_Predictions_Probabilities_Test <- Predictions_NN2_Probabilities_Test
+
+# Best Predictions as Data frame
+DF_Best_Neural_Network_Predictions_Test <- data.frame(Best_Neural_Network_Predictions_Dummy_Test, Best_Neural_Network_Predictions_Probabilities_Test) # FINAL PREDICTIONS DATAFRAME
+
+# Best Confusion as Data frame
+DF_Best_Neural_Confusion_Test <- data.frame(c(Best_Neural_Network_Confusion_Test$byClass[c(1,2)], Best_Neural_Network_Confusion_Test$overall[1]))
+colnames(DF_Best_Neural_Confusion_Test) <- "Best Neural Network"
+DF_Best_Neural_Confusion_Test <- t(DF_Best_Neural_Confusion_Test) # FINAL CONFUSION DATAFRAME
+
+```
+
 
 ## Discriminant Analysis
 
@@ -1808,7 +2026,53 @@ DT::datatable(round(TABLE_7_MODELS,4), caption = "7 Models on Validation - Order
 
 ## Best 3 Models - On Test
 
-```{r Best 3 Models}
+```{r On Test Gathering, results='hide'}
+
+# Best Logistic Regression
+DF_Best_Logistic_Predictions_Test
+DF_Best_Logistic_Confusion_Test
+
+# As Numeric
+DF_Best_Logistic_Predictions_Test[,1] <- as.numeric(as.character(DF_Best_Logistic_Predictions_Test[,1]))
+DF_Best_Logistic_Predictions_Test[,2] <- as.numeric(DF_Best_Logistic_Predictions_Test[,2])
+
+# Best K-Nearest Neighbor
+DF_Best_KNN_Predictions
+DF_Best_KNN_Confusion
+
+# As Numeric
+DF_Best_KNN_Predictions[,1] <- as.numeric(as.character(DF_Best_KNN_Predictions[,1]))
+DF_Best_KNN_Predictions[,2] <- as.numeric(DF_Best_KNN_Predictions[,2])
+
+# Best Boosting Trees
+DF_best_boosted_pred
+DF_best_boosted_confusion
+
+# As Numeric
+DF_best_boosted_pred[,1] <- as.numeric(as.character(DF_best_boosted_pred[,1]))
+DF_best_boosted_pred[,2] <- as.numeric(DF_best_boosted_pred[,2])
+
+# Discriminant Analysis
+DF_Best_DA_Predictions 
+DF_Best_DA_Confusion
+
+# As Numeric
+DF_Best_DA_Predictions[,1] <- as.numeric(as.character(DF_Best_DA_Predictions[,1]))
+DF_Best_DA_Predictions[,2] <- as.numeric(DF_Best_DA_Predictions[,2])
+
+# Best Neural Network
+DF_Best_Neural_Network_Predictions_Test
+DF_Best_Neural_Confusion_Test
+
+# As Numeric
+DF_Best_Neural_Network_Predictions_Test[,1] <- as.numeric(as.character(DF_Best_Neural_Network_Predictions_Test[,1]))
+DF_Best_Neural_Network_Predictions_Test[,2] <- as.numeric(DF_Best_Neural_Network_Predictions_Test[,2])
+                                   
+```
+
+
+
+```{r Best 3 Models To be Deleted}
 
 # Boosted Trees prediction on Test set for Average Ensemble
 Boosted_Test_Pred<- predict(boosting, Test_M, type="class")
