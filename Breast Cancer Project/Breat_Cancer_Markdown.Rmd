@@ -1963,16 +1963,16 @@ Boosted_Pred_Test<- predict(boosting, Test_M, type="class")
 Boosted_Prob_Test<- predict(boosting, Test_M, type="prob")
 
 # Confusion Matrix for Class predictions on Test set:
-Confusion_Test_Boosted<- confusionMatrix(as.factor(Boosted_Pred_Test$class), Test_M$diagnosis, positive = "1")
-draw_confusion_matrix(Confusion_Test_Boosted)
+Confusion_Boosted_Test<- confusionMatrix(as.factor(Boosted_Pred_Test$class), Test_M$diagnosis, positive = "1")
+draw_confusion_matrix(Confusion_Boosted_Test)
 
 # Prediction and probabilities data-frame
 DF_Test_boosted_pred <- data.frame(Boosted_Pred_Test$class,Boosted_Prob_Test$prob[,2])
 
 #table of Confusion matrix values
-DF_Test_Boosted_Confusion <- data.frame(c(Confusion_Test_Boosted$byClass[c(1,2)], Confusion_Test_Boosted$overall[1]))
-colnames(DF_Test_Boosted_Confusion) <- "Boosted Tree Model"
-DF_Test_Boosted_Confusion<- t(DF_Test_Boosted_Confusion)
+DF_Boosted_Confusion_Test <- data.frame(c(Confusion_Boosted_Test$byClass[c(1,2)], Confusion_Boosted_Test$overall[1]))
+colnames(DF_Boosted_Confusion_Test) <- "Boosted Tree Model on Test"
+DF_Boosted_Confusion_Test<- t(DF_Boosted_Confusion_Test)
 
 ```
 
