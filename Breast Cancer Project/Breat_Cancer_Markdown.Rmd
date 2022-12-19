@@ -2137,12 +2137,12 @@ DF_Best_KNN_Predictions[,1] <- as.numeric(as.character(DF_Best_KNN_Predictions[,
 DF_Best_KNN_Predictions[,2] <- as.numeric(DF_Best_KNN_Predictions[,2])
 
 # Best Boosting Trees
-DF_best_boosted_pred
-DF_best_boosted_confusion
+DF_Test_boosted_pred
+DF_Boosted_Confusion_Test
 
 # As Numeric
-DF_best_boosted_pred[,1] <- as.numeric(as.character(DF_best_boosted_pred[,1]))
-DF_best_boosted_pred[,2] <- as.numeric(DF_best_boosted_pred[,2])
+DF_Test_boosted_pred[,1] <- as.numeric(as.character(DF_Test_boosted_pred[,1]))
+DF_Test_boosted_pred[,2] <- as.numeric(DF_Test_boosted_pred[,2])
 
 # Discriminant Analysis
 DF_Best_DA_Predictions 
@@ -2159,6 +2159,7 @@ DF_Best_Neural_Confusion_Test
 # As Numeric
 DF_Best_Neural_Network_Predictions_Test[,1] <- as.numeric(as.character(DF_Best_Neural_Network_Predictions_Test[,1]))
 DF_Best_Neural_Network_Predictions_Test[,2] <- as.numeric(DF_Best_Neural_Network_Predictions_Test[,2])
+
                                    
 ```
 
