@@ -1932,7 +1932,7 @@ plot(roc_score_rf ,main ="ROC curve for Random Forests", cex=1)
 
 #### Best Model - Boosting Trees
 
-```{r Best Model - Boosting Trees}
+```{r Best Model - Boosting Trees on Validation}
 
 # Best tree model is the boosted tree
 # Best tree confusion matrix
@@ -1954,6 +1954,29 @@ DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 
 ```
 
+
+### Best Model - Boosting Tree on Test
+
+```{r Best Model- Boosting Trees on Test}
+# Boosted Trees prediction on Test set for Average Ensemble
+Boosted_Pred_Test<- predict(boosting, Test_M, type="class")
+Boosted_Prob_Test<- predict(boosting, Test_M, type="prob")
+
+# Confusion Matrix for Class predictions on Test set:
+Confusion_Test_Boosted<- confusionMatrix(as.factor(Boosted_Pred_Test$class), Test_M$diagnosis, positive = "1")
+draw_confusion_matrix(Confusion_Test_Boosted)
+
+# Prediction and probabilities data-frame
+DF_Test_boosted_pred <- data.frame(Boosted_Pred_Test$class,Boosted_Prob_Test$prob[,2])
+
+#table of Confusion matrix values
+DF_Test_Boosted_Confusion <- data.frame(c(Confusion_Test_Boosted$byClass[c(1,2)], Confusion_Test_Boosted$overall[1]))
+colnames(DF_Test_Boosted_Confusion) <- "Boosted Tree Model"
+DF_Test_Boosted_Confusion<- t(DF_Test_Boosted_Confusion)
+
+```
+
+We predict the performance of Boosted Trees on the test set so to then recompute the Average Ensemble
 
 
 # Best Models
@@ -2139,29 +2162,6 @@ DF_Best_Neural_Network_Predictions_Test[,2] <- as.numeric(DF_Best_Neural_Network
                                    
 ```
 
-
-
-```{r Best 3 Models To be Deleted}
-
-# Boosted Trees prediction on Test set for Average Ensemble
-Boosted_Test_Pred<- predict(boosting, Test_M, type="class")
-Boosted_Test_Prob<- predict(boosting, Test_M, type="prob")
-
-# Confusion Matrix for Class predictions on Test set:
-Confusion_Test_Boosted<- confusionMatrix(as.factor(Boosted_Test_Pred$class), Test_M$diagnosis, positive = "1")
-draw_confusion_matrix(Confusion_Test_Boosted)
-
-# Prediction and probabilities data-frame
-DF_Test_boosted_pred <- data.frame(Boosted_Test_Pred$class,Boosted_Test_Prob$prob[,2])
-
-#table of Confusion matrix values
-DF_Test_Boosted_Confusion <- data.frame(c(Confusion_Test_Boosted$byClass[c(1,2)], Confusion_Test_Boosted$overall[1]))
-colnames(DF_Test_Boosted_Confusion) <- "Boosted Tree Model"
-DF_Test_Boosted_Confusion<- t(DF_Test_Boosted_Confusion)
-
-```
-
-The Accuracy Parameter is actually higher than then the one we observe from the prediction run on the Validation set, we also gain on sensitivity relative to Specificity.
 
 
 # Unsupervised Learning
