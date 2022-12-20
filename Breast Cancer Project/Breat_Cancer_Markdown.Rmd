@@ -1,6 +1,6 @@
 ---
 title: "Breast Cancer Project"
-author: "Manuela Giansante, Liam Phan, Micheal Bigler"
+author: "Manuela Giansante, Liam Phan, Michael Bigler"
 date: "2022-12-19"
 output:  
   rmdformats::robobook:
@@ -17,7 +17,7 @@ output:
 ```{r setup, include=FALSE}
 
 knitr::opts_chunk$set(echo = TRUE,
-                      cache = TRUE,warning = FALSE, fig.align='center')
+                      cache = TRUE, warning = FALSE, message = FALSE, fig.align='center')
 
 rm(list = ls())
 
