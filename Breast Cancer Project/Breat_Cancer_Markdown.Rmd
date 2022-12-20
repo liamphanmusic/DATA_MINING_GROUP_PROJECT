@@ -2861,8 +2861,6 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 > Comments:
 
 
-# Conclusion
-
 # References 
 
 [Logistic Regression in Machine Learning](https://www.javatpoint.com/logistic-regression-in-machine-learning)
