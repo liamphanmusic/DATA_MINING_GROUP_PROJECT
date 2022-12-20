@@ -2078,12 +2078,102 @@ DT::datatable(round(Average_DF,4), caption = "Best 5 Models on Validation - Aver
 # Majority vote Confusion Matrix
 Majority_factor <- data.frame(as.factor(Majority_DF[,6]), as.factor(Majority_DF[,7])) 
 Majority_confusion <- confusionMatrix(Majority_factor[,1], Majority_factor[,2], positive = "1")
-draw_confusion_matrix(Majority_confusion)
+draw_confusion_matrix_Majority_Validation <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Majority Vote - Validation', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+draw_confusion_matrix_Majority_Validation(Majority_confusion)
 
 # Average Confusion Matrix
 Average_factor <- data.frame(as.factor(Average_DF[,7]), as.factor(Average_DF[,8])) 
 Average_confusion <- confusionMatrix(Average_factor[,1], Average_factor[,2], positive = "1")
-draw_confusion_matrix(Average_confusion)
+draw_confusion_matrix_Average_Validation <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Average Probabilities - Validation', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+draw_confusion_matrix_Average_Validation(Average_confusion)
 
 # Majority Confusion as Data frame
 DF_Majority_Confusion <- data.frame(c(Majority_confusion$byClass[c(1,2)], Majority_confusion$overall[1]))
@@ -2116,7 +2206,7 @@ DT::datatable(round(TABLE_7_MODELS,4), caption = "7 Models on Validation - Order
 > Comments: 3 Best Models according to both **Sensitivity** and **Accuracy** are: **Neural Network**, **DA** and **Average Probabilities** on Validation. 
 
 
-## Best 3 Models - On Test
+## Best 5 Models - On Test
 
 ```{r On Test Gathering, results='hide'}
 
@@ -2213,12 +2303,102 @@ DT::datatable(round(Average_DF_Test,4), caption = "Best 5 Models on Test - Avera
 # Majority vote Confusion Matrix
 Majority_factor_Test <- data.frame(as.factor(Majority_DF_Test[,6]), as.factor(Majority_DF_Test[,7])) 
 Majority_confusion_Test <- confusionMatrix(Majority_factor_Test[,1], Majority_factor_Test[,2], positive = "1")
-draw_confusion_matrix(Majority_confusion_Test)
+draw_confusion_matrix_Majority_Test <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Majority Vote - Test', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+draw_confusion_matrix_Majority_Test(Majority_confusion_Test)
 
 # Average Confusion Matrix
 Average_factor_Test <- data.frame(as.factor(Average_DF_Test[,7]), as.factor(Average_DF_Test[,8])) 
 Average_confusion_Test <- confusionMatrix(Average_factor_Test[,1], Average_factor_Test[,2], positive = "1")
-draw_confusion_matrix(Average_confusion_Test)
+draw_confusion_matrix_Average_Test <- function(cm) {
+
+  layout(matrix(c(1,1,2)))
+  par(mar=c(2,2,2,2))
+  plot(c(100, 345), c(300, 450), type = "n", xlab="", ylab="", xaxt='n', yaxt='n')
+  title('CONFUSION MATRIX for Average Probabilities - Test', cex.main=2)
+
+  # create the matrix 
+  rect(150, 430, 240, 370, col='#1c6155')
+  text(195, 435, 'Benign', cex=1.2)
+  rect(250, 430, 340, 370, col='#1c615570')
+  text(295, 435, 'Malignant', cex=1.2)
+  text(125, 370, 'Predicted', cex=1.3, srt=90, font=2)
+  text(245, 450, 'Actual', cex=1.3, font=2)
+  rect(150, 305, 240, 365, col='#1c615570')
+  rect(250, 305, 340, 365, col='#1c6155')
+  text(140, 400, 'Benign', cex=1.2, srt=90)
+  text(140, 335, 'Malignant', cex=1.2, srt=90)
+
+  # add in the cm results 
+  res <- as.numeric(cm$table)
+  text(195, 400, res[1], cex=1.6, font=2, col='white')
+  text(195, 335, res[2], cex=1.6, font=2, col='white')
+  text(295, 400, res[3], cex=1.6, font=2, col='white')
+  text(295, 335, res[4], cex=1.6, font=2, col='white')
+
+  # add in the specifics 
+  plot(c(100, 0), c(100, 0), type = "n", xlab="", ylab="", main = "DETAILS", xaxt='n', yaxt='n')
+  text(10, 85, names(cm$byClass[1]), cex=1.2, font=2)
+  text(10, 70, round(as.numeric(cm$byClass[1]), 3), cex=1.2)
+  text(30, 85, names(cm$byClass[2]), cex=1.2, font=2)
+  text(30, 70, round(as.numeric(cm$byClass[2]), 3), cex=1.2)
+  text(50, 85, names(cm$byClass[5]), cex=1.2, font=2)
+  text(50, 70, round(as.numeric(cm$byClass[5]), 3), cex=1.2)
+  text(70, 85, names(cm$byClass[6]), cex=1.2, font=2)
+  text(70, 70, round(as.numeric(cm$byClass[6]), 3), cex=1.2)
+  text(90, 85, names(cm$byClass[7]), cex=1.2, font=2)
+  text(90, 70, round(as.numeric(cm$byClass[7]), 3), cex=1.2)
+
+  # add in the accuracy information 
+  text(30, 35, names(cm$overall[1]), cex=1.5, font=2)
+  text(30, 20, round(as.numeric(cm$overall[1]), 3), cex=1.4)
+  text(70, 35, names(cm$overall[2]), cex=1.5, font=2)
+  text(70, 20, round(as.numeric(cm$overall[2]), 3), cex=1.4)
+}
+draw_confusion_matrix_Average_Test(Average_confusion_Test)
 
 # Majority Confusion as Data frame
 DF_Majority_Confusion_Test <- data.frame(c(Majority_confusion_Test$byClass[c(1,2)], Majority_confusion_Test$overall[1]))
