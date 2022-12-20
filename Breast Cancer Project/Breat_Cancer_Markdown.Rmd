@@ -2163,6 +2163,93 @@ DF_Best_Neural_Network_Predictions_Test[,2] <- as.numeric(DF_Best_Neural_Network
                                    
 ```
 
+### Majority Vote
+
+```{r Majority Vote Test}
+
+
+Majority_DF_Test <- data.frame(DF_Best_Logistic_Predictions_Test[,1], DF_Best_KNN_Predictions_test[,1], DF_Test_boosted_pred[,1], DF_Best_DA_Predictions_test[,1], DF_Best_Neural_Network_Predictions_Test[,1])
+
+for(i in 1:nrow(Majority_DF_Test)){
+  if(sum(Majority_DF_Test[i,1] + Majority_DF_Test[i,2] + Majority_DF_Test[i,3] + Majority_DF_Test[i,4] + Majority_DF_Test[i,5])/5 > 0.5){
+    Majority_DF_Test[i,6] = 1
+    }else{Majority_DF_Test[i,6] = 0}
+}
+
+colnames(Majority_DF_Test) <- c("Logistic Regression","K-Nearest Neighbor", "Boosted Trees","Discriminant Analysis", "Neural Network","Majority Vote")
+
+Majority_DF_Test$'Test Actual' <- as.numeric(as.character(Test$diagnosis))
+
+DT::datatable(Majority_DF_Test, caption = "Best 5 Models on Test - Majority of Votes") 
+
+```
+
+
+### Average of Models Probabilities
+
+```{r Average of Models Probabilities Test}
+
+Average_DF_Test <- data.frame(DF_Best_Logistic_Predictions_Test[,2], DF_Best_KNN_Predictions_test[,2], DF_Test_boosted_pred[,2], DF_Best_DA_Predictions_test[,2], DF_Best_Neural_Network_Predictions_Test[,2])
+
+for(i in 1:nrow(Average_DF_Test)){
+  Average_DF_Test[i,6] <- sum(Average_DF_Test[i,1] + Average_DF_Test[i,2] + Average_DF_Test[i,3] + Average_DF_Test[i,4] + Average_DF_Test[i,5])/5
+}
+
+colnames(Average_DF_Test) <- c("Logistic Regression","K-Nearest Neighbor", "Boosted Trees","Discriminant Analysis", "Neural Network","Average")
+
+Average_DF_Test$'Average Cutoff 0.5' <- ifelse(Average_DF_Test$`Average`>0.5,1,0)
+
+Average_DF_Test$'Test Actual' <- as.numeric(as.character(Test$diagnosis))
+
+DT::datatable(round(Average_DF_Test,4), caption = "Best 5 Models on Test - Average of Probabilities") 
+
+```
+
+
+### Confusion Matrix of Majority and Average
+
+```{r Confusion Matrix of Majority and Average Test}
+ 
+# Majority vote Confusion Matrix
+Majority_factor_Test <- data.frame(as.factor(Majority_DF_Test[,6]), as.factor(Majority_DF_Test[,7])) 
+Majority_confusion_Test <- confusionMatrix(Majority_factor_Test[,1], Majority_factor_Test[,2], positive = "1")
+draw_confusion_matrix(Majority_confusion_Test)
+
+# Average Confusion Matrix
+Average_factor_Test <- data.frame(as.factor(Average_DF_Test[,7]), as.factor(Average_DF_Test[,8])) 
+Average_confusion_Test <- confusionMatrix(Average_factor_Test[,1], Average_factor_Test[,2], positive = "1")
+draw_confusion_matrix(Average_confusion_Test)
+
+# Majority Confusion as Data frame
+DF_Majority_Confusion_Test <- data.frame(c(Majority_confusion_Test$byClass[c(1,2)], Majority_confusion_Test$overall[1]))
+colnames(DF_Majority_Confusion_Test) <- "Majority Vote"
+DF_Majority_Confusion_Test <- t(DF_Majority_Confusion_Test) # FINAL CONFUSION DATAFRAME
+
+# Average Confusion as Data frame
+DF_Average_Confusion_Test <- data.frame(c(Average_confusion_Test$byClass[c(1,2)], Average_confusion_Test$overall[1]))
+colnames(DF_Average_Confusion_Test) <- "Average Probabilities"
+DF_Average_Confusion_Test <- t(DF_Average_Confusion_Test) # FINAL CONFUSION DATAFRAME
+
+```
+
+> Comments: 
+
+### Table of All 7 Models - On Test
+
+```{r Table of All 7 Models Test}
+
+TABLE_7_MODELS_Test <- rbind(DF_Best_Logistic_Confusion_Test, DF_Best_KNN_Confusion_test, DF_Boosted_Confusion_Test, DF_Best_DA_Confusion_test, DF_Best_Neural_Confusion_Test, DF_Majority_Confusion_Test, DF_Average_Confusion_Test)
+
+TABLE_7_MODELS_Test <- as.data.frame(TABLE_7_MODELS_Test)
+
+TABLE_7_MODELS_Test <- TABLE_7_MODELS_Test %>% arrange(-Sensitivity)
+
+DT::datatable(round(TABLE_7_MODELS_Test,4), caption = "7 Models on Test - Order by Sensitivity") 
+
+```
+
+> Comments: 
+
 
 
 # Unsupervised Learning
