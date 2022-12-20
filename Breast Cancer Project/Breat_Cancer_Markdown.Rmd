@@ -895,7 +895,7 @@ length(pruned_tree$frame$var[pruned_tree$frame$var == "<leaf>"]) # how many end 
 
 ```
 
-The fully grown tree is quite reduced in size, still we proceed with the pruning. The Best Pruned tree has in total 5 end notes, obtained by selecting the minimum `xerror`.
+> Comments: The fully grown tree is quite reduced in size, still we proceed with the pruning. The Best Pruned tree has in total 5 end notes, obtained by selecting the minimum `xerror`.
 We also report the table of variables in importance.
 
 
@@ -914,7 +914,7 @@ draw_confusion_matrix(tree_cf)
 
 ```
 
-Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy amounts to 0.906, which is expected for such a simple model.
+> Comments: Sensitivity lower than Specificity ( Malign diagnosis is minority). Accuracy amounts to 0.906, which is expected for such a simple model.
 
 ```{r}
 
@@ -928,7 +928,7 @@ plot(roc_score ,main ="ROC curve")
 
 ```
 
-Specificity is higher than Sensitivity, the model performs better in the categorisation of benign cases.
+> Comments: Specificity is higher than Sensitivity, the model performs better in the categorisation of benign cases.
 
 ## K-Nearest Neighbor
 
@@ -1895,7 +1895,7 @@ rf_cf <- confusionMatrix(as.factor(rf_pred), Validation_M$diagnosis, positive = 
 draw_confusion_matrix(rf_cf)
 ```
 
-The model performing best is the Boosted Trees model. They all provide improved classification capacity than the orginal Best Pruned Tree.
+> Comments: The model performing best is the Boosted Trees model. They all provide improved classification capacity than the orginal Best Pruned Tree.
 
 ### ROC curves
 
@@ -1954,6 +1954,7 @@ DF_best_boosted_confusion<- t(DF_best_boosted_confusion)
 
 ```
 
+> Comments: We have reported the best model from the Trees family.
 
 ### Best Model - Boosting Tree on Test
 
@@ -1976,7 +1977,7 @@ DF_Boosted_Confusion_Test<- t(DF_Boosted_Confusion_Test)
 
 ```
 
-We predict the performance of Boosted Trees on the test set so to then recompute the Average Ensemble
+> Comments: We predict the performance of Boosted Trees on the test set so to then recompute the Average Ensemble. The model seems to performs better n the test set than how it behaved over the validation set.
 
 
 # Best Models
