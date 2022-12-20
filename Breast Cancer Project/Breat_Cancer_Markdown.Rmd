@@ -1368,7 +1368,7 @@ abline(a = 0, b = 1)
 
 <center>
 
-```{r Predictions and Confusion Matrix for NN 2}
+```{r Predictions and Confusion Matrix for NN 2.2}
 
 set.seed(1)
 
