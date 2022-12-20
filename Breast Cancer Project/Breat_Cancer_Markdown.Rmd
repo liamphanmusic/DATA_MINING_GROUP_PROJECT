@@ -1135,6 +1135,9 @@ Neural_1_Plot
 
 ```
 
+
+![image](IMAGES\LIAM\NEURAL NETWORK\BASIC NEURAL NETWORK - 3 HIDDEN NODES and 1 LAYER.png)
+
 </center>
 
 
@@ -1253,6 +1256,8 @@ Neural_2_Plot <- plot(Neural_2)
 Neural_2_Plot
 
 ```
+
+![image](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 1 LAYER.png)
 
 </center>
 
@@ -1468,6 +1473,8 @@ Neural_3_Plot <- plot(Neural_3)
 Neural_3_Plot
 
 ```
+
+![image](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 2 LAYER.png)
 
 </center>
 
