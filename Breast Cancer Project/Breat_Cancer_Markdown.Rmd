@@ -130,6 +130,8 @@ ORIGINAL <- fread("data/Breast_Cancer/breast-cancer.csv")
 
 ```
 
+[Uci.edu. (2019). UCI Machine Learning Repository: Breast Cancer Wisconsin (Diagnostic) Data Set.](https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+(Diagnostic))
+
 ## Structure of Data
 
 ```{r Data Summary}
@@ -139,6 +141,7 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 
 ```
 
+> Comments: We can see that there is no incoherence inside our variables range and type of all features seem adequate. They all are integer except **diagnosis** which is character and need to be formated in further part of this analysis.
 
 ## Missing values
 
@@ -146,6 +149,7 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 gg_miss_var(ORIGINAL) + ggtitle("NAs")
 ```
 
+> Comments: There is no misssing values in our datasaet, as showed by this plot
 
 ## Distribution of Data
 
@@ -178,6 +182,8 @@ ggplot(gather(dplyr::select(ORIGINAL, -c(id)), key, value, -diagnosis), aes(valu
 
 ```
 
+> Comments: Most variables are normally distributed except some features are right skewed. mostly in SE or Worst scenarios.
+
 ## Correlation
 
 ```{r corrplot, fig.height=16, fig.width=16}
@@ -193,6 +199,8 @@ Corr_plot <- cor(Corr_Data)
 corrplot(Corr_plot, method = "color", col=brewer.pal(n=8, name="BuGn"),tl.col="black",tl.srt=45, addCoef.col = "black",number.cex = 1)
 
 ```
+
+> Comments: Correlation Plot shows us risk of multicolinearity and need to be adressed in some cases, such as when the model require explanatory analysis (ANOVA or others Statistical Test).
 
 ## Pairs plots
 
@@ -225,6 +233,9 @@ ggpairs(ORIGINAL, columns = 23:32, aes(color = diagnosis, alpha = 0.5),
 
 ```
 
+
+_____________________________________________________________________________________________________________
+
 # Data Preparation
 
 ## Transformation
@@ -240,6 +251,7 @@ ORIGINAL$diagnosis <- as.factor(ORIGINAL$diagnosis) # To Factor Variable
 
 ```
 
+> Comments: We need to transform our outcome variable (or response variable) as factor of two levels, 0 for Begnign and 1 for Malign (Positive Case in our confusion matrix). 
 
 ## Partitioning 
 
@@ -265,7 +277,19 @@ paste("The Proportions are:", round(Prop_Training,2),"% In Training,",round(Prop
 
 ```
 
+> Comments: This output help us checking that our partitioning went correctly.
+
+
+_____________________________________________________________________________________________________________
+
 # Supervised Learning
+
+> "Supervised learning, also known as supervised machine learning, is a subcategory of machine learning and artificial intelligence. It is defined by its use of labeled datasets to train algorithms that to classify data or predict outcomes accurately. As input data is fed into the model, it adjusts its weights until the model has been fitted appropriately, which occurs as part of the cross validation process."
+
+[What is supervised learning? - IBM](https://www.ibm.com/cloud/learn/supervised-learning#:~:text=Supervised%20learning%2C%20also%20known%20as,data%20or%20predict%20outcomes%20accurately.)
+
+_____________________________________________________________________________________________________________
+
 
 ## Logistic Regression
 
@@ -679,7 +703,7 @@ draw_confusion_matrix_Logistic_Lasso(Confusion_Matrix_Logistic_Lasso)
 
 ```
 
-> Comments: 
+> Comments: We can see that this model is very good in sensitivity and overall accuracy. 
 
 #### ROC Curve of the Logistic Regression - Validation
 
@@ -699,7 +723,6 @@ abline(a = 0, b = 1)
 ```
 
 
-> Comments:
 
 #### Logistic Lasso Regression - Predictions and Confusion Matrix on Test
 
@@ -777,7 +800,7 @@ draw_confusion_matrix_Logistic_Lasso_Test(Confusion_Matrix_Logistic_Lasso_Test)
 
 ```
 
-> Comments: 
+> Comments: We can see that this model is very good in sensitivity and overall accuracy but perform better on the Test partition. 
 
 
 ### Best Logistic Regression
@@ -830,6 +853,9 @@ DF_Best_Logistic_Confusion_Test <- t(DF_Best_Logistic_Confusion_Test) # FINAL CO
 ```
  
  
+ 
+_____________________________________________________________________________________________________________
+ 
 ## Classification Tree
 
 ```{r  Classification Tree 1}
@@ -855,9 +881,7 @@ paste("The Proportions are:", round(Prop_Training,2),"% In Training,",round(Prop
 
 ```
 
-The outcome variable is a binary factor, we model a classification tree.
-We first run a deep tree, with all the features included.
-Then proceed to reduce the size of the deeper tree through pruning.
+>The outcome variable is a binary factor, we model a classification tree. We first run a deep tree, with all the features included. Then proceed to reduce the size of the deeper tree through pruning.
 
 
 ### run tree: 
@@ -930,9 +954,12 @@ plot(roc_score ,main ="ROC curve")
 
 > Comments: Specificity is higher than Sensitivity, the model performs better in the categorisation of benign cases.
 
+
+_____________________________________________________________________________________________________________
+
 ## K-Nearest Neighbor
 
-As K nearest neighbour is based on distances the predictors need to be standardized such that they have a mean at 0 and a variance equal to 1. This necessity of standardizinh is due to the fact that otherwise variables with bigger values have more influence on the distance that is being calculated. 
+As K nearest neighbour is based on distances the predictors need to be standardized such that they have a mean at 0 and a variance equal to 1. This necessity of standardization is due to the fact that otherwise variables with bigger values have more influence on the distance that is being calculated. 
 
 ```{r data prep knn}
 
@@ -949,8 +976,7 @@ ORIGINAL.KNN.test <- predict(norm.value, ORIGINAL.KNN.test)
 
 ```
 
-To get the best k one might iterate over severall k and choose the one which has the highest value for the metric that is being looked at. In this case we looked at either accuracy or sensitivity. 
-
+To get the best k one might iterate over several k and choose the one which has the highest value for the metric that is being looked at. In this case we looked at either accuracy or sensitivity. 
 
 ```{r knn best k}
 
@@ -1085,6 +1111,9 @@ colnames(DF_Best_KNN_Confusion_test) <- "Best KNN test"
 DF_Best_KNN_Confusion_test <- t(DF_Best_KNN_Confusion_test) # FINAL CONFUSION DATAFRAME
 ```
 
+
+_____________________________________________________________________________________________________________
+
 ## Neural Networks
 
 ```{r Dataset Duplicata Neural}
@@ -1136,7 +1165,7 @@ Neural_1_Plot
 ```
 
 
-![image](IMAGES\LIAM\NEURAL NETWORK\BASIC NEURAL NETWORK - 3 HIDDEN NODES and 1 LAYER.png)
+![Basic Neural Network with 3 Hidden Nodes and 1 Layer](IMAGES\LIAM\NEURAL NETWORK\BASIC NEURAL NETWORK - 3 HIDDEN NODES and 1 LAYER.png)
 
 </center>
 
@@ -1257,7 +1286,7 @@ Neural_2_Plot
 
 ```
 
-![image](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 1 LAYER.png)
+![Advanced Neural Network with 15 Hidden nodes and 1 layer](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 1 LAYER.png)
 
 </center>
 
@@ -1344,7 +1373,7 @@ draw_confusion_matrix_Neural_2(Confusion_Matrix_Neural_2)
 
 </center>
 
-> Comments: BEST MODEL both Sensitivity and Accuracy
+> Comments: Best Neural Network Model both Sensitivity and Accuracy.
 
 #### ROC Curve for Neural Model 2 
 
@@ -1452,6 +1481,8 @@ draw_confusion_matrix_Neural_2_Test(Confusion_Matrix_Neural_2_Test)
 </center>
 
 
+> Comments: Very stable and can perform better on Test so no overfitting occured.
+
 ### Advanced Neural Network with 2 Hidden Layers of 15 Hidden Nodes - Model 3
 
 <center>
@@ -1474,7 +1505,7 @@ Neural_3_Plot
 
 ```
 
-![image](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 2 LAYER.png)
+![Advanced Neural Network with 15 Hidden nodes and 2 layers](IMAGES\LIAM\NEURAL NETWORK\ADVANCED NEURAL NETWORK - 15 HIDDEN NODES and 2 LAYER.png)
 
 </center>
 
@@ -1562,7 +1593,7 @@ draw_confusion_matrix_Neural_3(Confusion_Matrix_Neural_3)
 
 </center>
 
-> Comments: NOT BETTER
+> Comments: Not better than the second model but better than the Basic Neural Network.
 
 
 ### Neural Network Best Model
@@ -1614,6 +1645,9 @@ DF_Best_Neural_Confusion_Test <- t(DF_Best_Neural_Confusion_Test) # FINAL CONFUS
 ```
 
 
+
+_____________________________________________________________________________________________________________
+
 ## Discriminant Analysis
 
 To run discriminant analysis the data needs to be centered and scaled. As again otherwise larger values might have abigger influence.  
@@ -1659,7 +1693,7 @@ draw_confusion_matrix(DA1.conf.mat, titleaddon = 'Discriminant Analysis')
 # partimat(diagnosis~., data = data.frame(ORIGINAL.DA.train), method="lda", mar=c(0.5, 0.5, 0.5, 0.5))
 ```
 
-Not a bad model but again it lacks sensitivity. As the model is quite big we can try a variable selection. 
+> Comments: Not a bad model but again it lacks sensitivity. As the model is quite big we can try a variable selection. 
 
 ```{r lda variable selection}
 set.seed(1)
@@ -1688,7 +1722,7 @@ DA1.sel.conf.mat <- confusionMatrix(DA1.sel.pred.valid.resp, ORIGINAL.DA.valid$d
 draw_confusion_matrix(DA1.sel.conf.mat, titleaddon = 'Discriminant Analysis')
 ```
 
-We see that the model only drops one variable and the predictive power of the model doesn't change much as instead of 1 false positive and 7 false negatives there are now 0 false positives and 8 false negatives. 
+> Comments: We see that the model only drops one variable and the predictive power of the model doesn't change much as instead of 1 false positive and 7 false negatives there are now 0 false positives and 8 false negatives. 
 
 As we have seen in the data anaylsis there is some correlation in the data why we can try to run a quadratic discriminant analysis. 
 
@@ -1712,7 +1746,7 @@ DA2.conf.mat <- confusionMatrix(DA2.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA2.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
-Overall this model is worse than the lda but i case of sensitivtiy it is better as there are only 4 false negatives. 
+> Comments: Overall this model is worse than the lda but i case of sensitivtiy it is better as there are only 4 false negatives. 
 
 ```{r qda selection}
 set.seed(1)
@@ -1740,7 +1774,7 @@ DA2.sel.conf.mat <- confusionMatrix(DA2.sel.pred.valid.resp, ORIGINAL.DA.valid$d
 draw_confusion_matrix(DA2.sel.conf.mat, titleaddon = 'Quadratic Discriminant Analysis')
 ```
 
-This time around 6 variables were dropped but we see that the model is not better than the qda with all predictors. 
+> Comments: This time around 6 variables were dropped but we see that the model is not better than the qda with all predictors. 
 
 There are several more discriminant analysis methods that can be applied. Down below we tried Mixture discriminant analysis (MDA) which often outperforms QDA and LDA because the assumptions for the distributions of the classes are loser than for lda and qda. 
 
@@ -1761,7 +1795,7 @@ DA4.conf.mat <- confusionMatrix(DA4.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA4.conf.mat, 'Mixture discriminant analysis')
 ```
 
-We see that this method in general works better than the lda and qda. In this case we don't proceed with this model as it isn't better in sensitivity which is what we want when predicting cancer. 
+> Comments: We see that this method in general works better than the lda and qda. In this case we don't proceed with this model as it isn't better in sensitivity which is what we want when predicting cancer. 
 
 Down below we run a flexible discriminant analysis (fda) which is an extension of lda using non-linear combinations of predictors (splines) 
 
@@ -1782,7 +1816,7 @@ DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Flexible discriminant analysis')
 ```
 
-We see that the model has a good accuracy but isn't good in sensitivity. Therefore we don't use it further. 
+> Comments: We see that the model has a good accuracy but isn't good in sensitivity. Therefore we don't use it further. 
 
 Lastly we fit a regularized discriminant analysis (RDA) which is a trade off between qda and lda. 
 
@@ -1803,7 +1837,7 @@ DA5.conf.mat <- confusionMatrix(DA5.pred.valid.resp, ORIGINAL.DA.valid$diagnosis
 draw_confusion_matrix(DA5.conf.mat, titleaddon = 'Regularized discriminant analysis')
 ```
 
-This model isn't better than any other model therefore we don't use it further. 
+> Comments: This model isn't better than any other model therefore we don't use it further. 
 
 As we have seen the highest sensitvity was in qda with acceptable accuracy we chose this model as the best one. 
 
@@ -1865,6 +1899,9 @@ colnames(DF_Best_DA_Confusion_test) <- "Best DA test"
 DF_Best_DA_Confusion_test <- t(DF_Best_DA_Confusion_test) # FINAL CONFUSION DATAFRAME
 
 ```
+
+
+_____________________________________________________________________________________________________________
 
 ## Ensemble Methods
 
@@ -1987,8 +2024,11 @@ DF_Boosted_Confusion_Test<- t(DF_Boosted_Confusion_Test)
 > Comments: We predict the performance of Boosted Trees on the test set so to then recompute the Average Ensemble. The model seems to performs better n the test set than how it behaved over the validation set.
 
 
+
+_____________________________________________________________________________________________________________
+
 # Best Models
-## Best 5 Models - On Validation
+## Best 7 Models - On Validation
 
 ```{r Best 5 Models amongst all, results='hide'}
 
@@ -2214,7 +2254,7 @@ DT::datatable(round(TABLE_7_MODELS,4), caption = "7 Models on Validation - Order
 > Comments: 3 Best Models according to both **Sensitivity** and **Accuracy** are: **Neural Network**, **DA** and **Average Probabilities** on Validation. 
 
 
-## Best 5 Models - On Test
+## Best 7 Models - On Test
 
 ```{r On Test Gathering, results='hide'}
 
@@ -2440,11 +2480,46 @@ DT::datatable(round(TABLE_7_MODELS_Test,4), caption = "7 Models on Test - Order 
 
 
 
+
+_____________________________________________________________________________________________________________
+
+## Best 3 Models After Validation and Test
+
+The Best 3 Models after all the process done in Validation and Test are:
+ 
+
+In Validation
+ 
+<ol>
+  <li>Neural Network</li>
+  <li>Discriminant Analysis</li>
+  <li>Average Probabilities</li>
+</ol>
+
+In Test
+
+<ol>
+  <li>Neural Network</li>
+  <li>Average Probabilities</li>
+  <li>Discriminant Analysis</li>
+</ol>
+
+> Comments: Ranking based on **Sensitivity** First and **Accuracy** second.
+
+
 # Unsupervised Learning
+
+> "Unsupervised learning, also known as unsupervised machine learning, uses machine learning algorithms to analyze and cluster unlabeled datasets. These algorithms discover hidden patterns or data groupings without the need for human intervention. Its ability to discover similarities and differences in information make it the ideal solution for exploratory data analysis, cross-selling strategies, customer segmentation, and image recognition."
+
+[What is unsupervised learning? - IBM](https://www.ibm.com/cloud/learn/unsupervised-learning#:~:text=Unsupervised%20learning%2C%20also%20known%20as,the%20need%20for%20human%20intervention.)
 
 ## Cluster Analysis
 
 ### K-Means Clustering
+
+> "To process the learning data, the K-means algorithm in data mining starts with a first group of randomly selected centroids, which are used as the beginning points for every cluster, and then performs iterative (repetitive) calculations to optimize the positions of the centroids."
+
+[Understanding K-means Clustering in Machine Learning](https://towardsdatascience.com/understanding-k-means-clustering-in-machine-learning-6a6e67336aa1)
 
 
 ```{r K-Means Clustering Preprocess}
