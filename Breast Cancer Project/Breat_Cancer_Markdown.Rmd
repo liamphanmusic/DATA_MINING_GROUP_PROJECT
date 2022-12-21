@@ -141,7 +141,7 @@ print(dfSummary(ORIGINAL, valid.col = FALSE, graph.magnif = 0.75, plain.ascii = 
 
 ```
 
-> Comments: We can see that there is no incoherence inside our variables range and type of all features seem adequate. They all are integer except **diagnosis** which is character and need to be formated in further part of this analysis.
+> Comments: We can see that there is no incoherence inside our variables range and type of all features seem adequate. They all are numeric except **diagnosis** which is character and need to be formated in further part of this analysis.
 
 ## Missing values
 
@@ -2506,6 +2506,8 @@ In Test
 
 > Comments: Ranking based on **Sensitivity** First and **Accuracy** second.
 
+_____________________________________________________________________________________________________________
+
 
 # Unsupervised Learning
 
@@ -2935,6 +2937,9 @@ ggplot(Pie_T1_T2, aes(x="", y=n, fill=t)) +
 
 > Comments:
 
+
+
+_____________________________________________________________________________________________________________
 
 # References 
 
