@@ -1,4 +1,4 @@
-# DATA_MINING_HW1
+# DATA_MINING_GROUP_PROJECT - Breast Cancer
 Master In Business Analytics - University of Geneva
 
 Creating Value Through Data Mining
