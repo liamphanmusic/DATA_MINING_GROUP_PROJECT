@@ -3,5 +3,5 @@ Master In Business Analytics - University of Geneva
 
 Creating Value Through Data Mining
 
-Liam Phan, Michael Bigler and Manuela Gisante
+Liam Phan, Michael Bigler and Manuela Giansante
 
