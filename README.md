@@ -1,4 +1,4 @@
-# Breast Cancer Report - Predicting The Malignancy of Breast Tumors
+# Predicting The Malignancy of Breast Tumors
 
 Master In Business Analytics - University of Geneva
 
